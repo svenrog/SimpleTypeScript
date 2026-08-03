@@ -16,7 +16,9 @@ SimpleTypeScript;` and reaches `TsModule`, `TsComment`, `TsType`, `TsValue`, `Ts
 | `SimpleTypeScript.Types` | The `TsType` nodes — named, array, generic, union, string literal. |
 | `SimpleTypeScript.Values` | The `TsValue` nodes — raw, string, array, object. |
 | `SimpleTypeScript.Syntax` | `TsSyntax`: escaping, identifiers, number form, indentation. |
-| `SimpleTypeScript.TypeGeneration` | **A second project and package**: the C#→TypeScript walk. Public, because a consumer configures it. |
+| `SimpleTypeScript.TypeGeneration` | **A second project and package**: the walk (`TypeWalker`, `TypeWalkerOptions`, `TypeMappings`) and `GenerationException`. |
+| `SimpleTypeScript.TypeGeneration.Documentation` | Where a doc comment comes from: the `IDocumentationSource` seam and its XmlDoc implementation. |
+| `SimpleTypeScript.TypeGeneration.Modules` | The pipeline a multi-file generator would otherwise write for itself: `IGeneratedModule`, `TypeModule`, `ModuleCatalog`, `ModuleWriter`, `GeneratedHeader`. |
 
 **Adding a construct is a class in the namespace for its grammar, plus a factory on the public base** — the
 node never becomes public, because the constructors are `private protected` and that is what keeps every

@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented here.
 
+## 0.4.0
+
+The rest of what a generator was writing for itself, in `SimpleTypeScript.TypeGeneration.Modules`:
+
+- `IGeneratedModule` — one generated file, stating only what is its own — with `TypeModule` for the common
+  case where a module *is* a set of roots.
+- `ModuleCatalog` discovers modules in an assembly rather than being handed a list, ordered by file name, and
+  refuses two that claim one path or an assembly that declares none.
+- `ModuleWriter` builds, banners, creates the directory a module names, and empties it first for a module
+  that `OwnsDirectory`.
+- `GeneratedHeader` with `AssemblyGeneratedHeader` (the default, naming the entry assembly) and `None`.
+- `GenerationException` — a source declaration that did not hold, as distinct from a name TypeScript cannot
+  spell. Everything the pipeline refuses arrives as one, so a host catches one thing.
+- The documentation sources moved to `SimpleTypeScript.TypeGeneration.Documentation`.
+
 ## 0.3.0
 
 - **`SimpleTypeScript.TypeGeneration`**, a second package: `TypeWalker` follows a set of C# roots and

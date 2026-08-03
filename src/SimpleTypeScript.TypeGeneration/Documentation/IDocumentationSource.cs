@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace SimpleTypeScript.TypeGeneration;
+namespace SimpleTypeScript.TypeGeneration.Documentation;
 
 /// <summary>
 /// Where a declaration's doc comment comes from. A seam rather than a setting because the C# XmlDoc is only

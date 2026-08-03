@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace SimpleTypeScript.TypeGeneration;
+namespace SimpleTypeScript.TypeGeneration.Documentation;
 
 /// <summary>
 /// No doc comments at all, which is the default: an assembly is not obliged to ship its XmlDoc, and a walk

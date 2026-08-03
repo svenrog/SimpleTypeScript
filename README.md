@@ -124,6 +124,46 @@ declaration order, so the file is byte-stable across runs and machines.
 This half reflects, so it is a package of its own — the emitter reflects over nothing, and a consumer
 publishing NativeAOT keeps that by taking only the emitter.
 
+## Generators with more than one module
+
+A build-time tool usually writes several files — the types, a vocabulary, a palette. `SimpleTypeScript.TypeGeneration.Modules`
+is that shape: a module says what it is, and the pipeline owns the banner, the directories and the writing.
+
+```csharp
+internal sealed class WireTypesModule : TypeModule
+{
+    public override string FileName => "api/generated/index.ts";
+    public override string Source => "the wire contracts";
+    public override bool OwnsDirectory => true;
+    protected override IEnumerable<Type> Roots => WireRoots.All;
+    protected override TypeWalkerOptions Options => new() { Documentation = new XmlDocumentationSource() };
+}
+```
+
+```csharp
+var writer = new ModuleWriter(outputDirectory);          // header defaults to naming the entry assembly
+
+foreach (var module in ModuleCatalog.From())             // every IGeneratedModule the assembly declares
+{
+    var file = writer.Write(module);
+    Console.WriteLine($"{file.Summary} -> {file.FileName}");
+}
+```
+
+- **`ModuleCatalog`** discovers rather than listing — adding a generator is one class and no edit to a
+  registry. Internal types count, and the modules come back ordered by file name so a run reports the same
+  way every time. Two modules claiming one path is a refusal, not a silent overwrite.
+- **`ModuleWriter`** creates the directory a module names, and empties it first for a module that
+  `OwnsDirectory` — a file the generator has stopped producing otherwise stays importable, and a stale shape
+  is the one nobody notices.
+- **`GeneratedHeader`** writes the do-not-edit banner; the default names the entry assembly, so a project
+  renamed or moved takes its header with it. `GeneratedHeader.None` writes none.
+- **Everything the pipeline can refuse is a `GenerationException`**, including what the emitter refuses
+  underneath it, so a host has one thing to catch and one sentence to print.
+
+A module that builds declarations by hand implements `IGeneratedModule` directly; `TypeModule` is for the
+common case where a module *is* a set of roots.
+
 ## Installing
 
 ```

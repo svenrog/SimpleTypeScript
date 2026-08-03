@@ -121,7 +121,7 @@ public sealed class TypeWalkerTests
     [Fact]
     public void Refuses_a_type_it_has_no_shape_for()
     {
-        var refusal = Assert.Throws<TypeScriptException>(() => Render(null, typeof(Untyped)));
+        var refusal = Assert.Throws<GenerationException>(() => Render(null, typeof(Untyped)));
 
         Assert.Contains(nameof(TypeWalkerOptions.Mappings), refusal.Message, StringComparison.Ordinal);
     }

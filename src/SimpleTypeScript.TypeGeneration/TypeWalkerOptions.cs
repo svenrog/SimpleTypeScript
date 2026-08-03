@@ -1,3 +1,4 @@
+using SimpleTypeScript.TypeGeneration.Documentation;
 using System.Text.Json;
 
 namespace SimpleTypeScript.TypeGeneration;

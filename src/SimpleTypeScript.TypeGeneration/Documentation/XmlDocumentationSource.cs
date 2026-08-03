@@ -2,7 +2,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
 
-namespace SimpleTypeScript.TypeGeneration;
+namespace SimpleTypeScript.TypeGeneration.Documentation;
 
 /// <summary>
 /// The <c>&lt;summary&gt;</c> a type or member carries, read from the XmlDoc file the compiler wrote beside

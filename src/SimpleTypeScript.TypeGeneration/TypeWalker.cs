@@ -97,7 +97,7 @@ public sealed class TypeWalker
 
         if (type.IsGenericType || type.IsPrimitive || type.IsPointer || type == typeof(object))
         {
-            throw new TypeScriptException(
+            throw new GenerationException(
                 $"{type.FullName} has no TypeScript shape; map it in {nameof(TypeWalkerOptions)}."
                 + $"{nameof(TypeWalkerOptions.Mappings)} or keep it off the wire");
         }
