@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented here.
 
+## 0.2.0
+
+Shapes, not only values — enough to generate DTOs, which is what a consumer was running a second generator
+for:
+
+- `TsModule.Interface` and `TsModule.TypeAlias`, with `TsMember` for a property signature: `readonly`, a doc
+  comment of its own, and a name written bare where it is an identifier and quoted where it is not.
+- `TsType.StringLiteral` and `TsType.Union` — what a closed set becomes once a JSON wire carries it as a
+  string. A union is the first type here that does not close with its own syntax, so `TsType` now tracks
+  whether a container has to parenthesise: `("a" | "b")[]`, and nothing else.
+- Refusals for the shapes that would check nothing: an interface with no members, one that declares a member
+  twice, a union with no alternatives.
+
 ## 0.1.0
 
 First release. The emitter behind a generated-module pipeline that was writing TypeScript out of C#

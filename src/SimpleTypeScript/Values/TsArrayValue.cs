@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace SimpleTypeScript;
+namespace SimpleTypeScript.Values;
 
 /// <summary>
 /// An array literal. Kept on one line while every item fits on one — a list of locales reads better that way

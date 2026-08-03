@@ -1,3 +1,4 @@
+using SimpleTypeScript.Declarations;
 using System.Text;
 
 namespace SimpleTypeScript;
@@ -12,11 +13,25 @@ public sealed class TsModule
 {
     private readonly List<TsDeclaration> _declarations = [];
 
-    /// <summary>Adds an exported <c>const</c>. See <see cref="TsDeclaration.Const"/> for the arguments.</summary>
+    /// <summary>Adds an exported <c>const</c>. See <see cref="TsConst.Create"/> for the arguments.</summary>
     public TsModule Const(
         string name, TsValue value, TsType? type = null, bool asConst = false, string? doc = null)
     {
-        _declarations.Add(TsDeclaration.Const(name, value, type, asConst, doc));
+        _declarations.Add(TsConst.Create(name, value, type, asConst, doc));
+        return this;
+    }
+
+    /// <summary>Adds an exported <c>interface</c>, its members in the order given.</summary>
+    public TsModule Interface(string name, IEnumerable<TsMember> members, string? doc = null)
+    {
+        _declarations.Add(TsInterface.Create(name, members, doc));
+        return this;
+    }
+
+    /// <summary>Adds an exported <c>type</c> alias.</summary>
+    public TsModule TypeAlias(string name, TsType type, string? doc = null)
+    {
+        _declarations.Add(TsTypeAlias.Create(name, type, doc));
         return this;
     }
 

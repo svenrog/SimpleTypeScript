@@ -1,3 +1,4 @@
+using SimpleTypeScript.Syntax;
 using System.Text;
 
 namespace SimpleTypeScript;
@@ -39,8 +40,12 @@ public sealed class TsComment
     /// <summary>Whether there is anything to write.</summary>
     internal bool IsEmpty => _lines.Count == 0;
 
-    /// <summary>Appends the comment, each line ending in <c>\n</c>.</summary>
-    internal void Write(StringBuilder builder)
+    /// <summary>
+    /// Appends the comment at <paramref name="depth"/>, each line ending in <c>\n</c>. The first line is
+    /// indented like the rest: a comment always begins a line of its own, so unlike a value it never follows
+    /// something already written.
+    /// </summary>
+    internal void Write(StringBuilder builder, int depth = 0)
     {
         if (IsEmpty)
         {
@@ -51,6 +56,7 @@ public sealed class TsComment
         {
             foreach (var line in _lines)
             {
+                TsSyntax.AppendIndent(builder, depth);
                 builder.Append("// ").Append(line).Append('\n');
             }
 
@@ -60,16 +66,20 @@ public sealed class TsComment
         // One line is the common case and reads better closed on itself than opened over three.
         if (_lines.Count == 1)
         {
+            TsSyntax.AppendIndent(builder, depth);
             builder.Append("/** ").Append(_lines[0]).Append(" */\n");
             return;
         }
 
+        TsSyntax.AppendIndent(builder, depth);
         builder.Append("/**\n");
         foreach (var line in _lines)
         {
+            TsSyntax.AppendIndent(builder, depth);
             builder.Append(" * ").Append(line).Append('\n');
         }
 
+        TsSyntax.AppendIndent(builder, depth);
         builder.Append(" */\n");
     }
 

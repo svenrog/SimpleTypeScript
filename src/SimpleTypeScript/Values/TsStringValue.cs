@@ -1,6 +1,7 @@
+using SimpleTypeScript.Syntax;
 using System.Text;
 
-namespace SimpleTypeScript;
+namespace SimpleTypeScript.Values;
 
 /// <summary>A string literal, escaped for ECMAScript source by <see cref="TsSyntax"/>.</summary>
 internal sealed class TsStringValue(string value) : TsValue

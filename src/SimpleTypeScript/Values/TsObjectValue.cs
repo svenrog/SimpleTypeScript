@@ -1,6 +1,7 @@
+using SimpleTypeScript.Syntax;
 using System.Text;
 
-namespace SimpleTypeScript;
+namespace SimpleTypeScript.Values;
 
 /// <summary>
 /// An object literal, always across lines: a generated map is opened to check one entry, and a single long

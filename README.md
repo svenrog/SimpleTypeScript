@@ -55,7 +55,27 @@ to emit, and no trimming or AOT caveat is carried into a consumer.
 | `TsValue` | A value literal: `String`, `Number`, `Boolean`, `Null`, `Array`, `Object`. Objects always break across lines; arrays stay on one while everything inside fits. |
 | `TsType` | An annotation: the primitives, `Record<,>`, `T[]`, and a named reference. |
 | `TsComment` | `Lines` for a `//` header, `Doc` for the `/** … */` an editor surfaces at the use site. |
+| `TsMember` | One property signature: a name, a type, `readonly`, a doc comment. |
 | `TypeScriptException` | The refusal: a binding name that is not one, a number with no literal form, a type this model does not describe. |
+
+Shapes as well as values, which is what generating DTOs from a wire contract needs:
+
+```csharp
+new TsModule()
+    .TypeAlias("ScanStatus", TsType.Union(["Queued", "Running"].Select(TsType.StringLiteral)))
+    .Interface(
+        "ScanSummary",
+        [
+            new TsMember("id", TsType.String, isReadOnly: true),
+            new TsMember("status", TsType.Of("ScanStatus")),
+            new TsMember("finishedAt", TsType.Union([TsType.String, TsType.Of("null")])),
+        ],
+        doc: "One scan, as the API returns it.");
+```
+
+A union is the one type here that does not close with its own syntax, so `TsType` tracks whether a container
+has to parenthesise it — `("a" | "b")[]` rather than `"a" | "b"[]`, which is a different type that compiles
+just as well. That flag is the whole precedence model, deliberately.
 
 **Deliberately not the whole type system.** Unions, intersections and conditionals have no shape to model
 them from, and every level of a grammar that is modelled has to be kept correct. Every type here closes with

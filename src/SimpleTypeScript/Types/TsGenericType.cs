@@ -1,4 +1,4 @@
-namespace SimpleTypeScript;
+namespace SimpleTypeScript.Types;
 
 /// <summary>
 /// A generic type applied to its arguments. Its own angle brackets close it, so it never needs

@@ -1,6 +1,7 @@
+using SimpleTypeScript.Syntax;
 using System.Text;
 
-namespace SimpleTypeScript;
+namespace SimpleTypeScript.Values;
 
 /// <summary>
 /// A value already in its emitted form — a keyword, or a number <see cref="TsSyntax"/> has formatted. Only

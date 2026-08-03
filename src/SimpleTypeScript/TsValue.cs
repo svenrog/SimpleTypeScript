@@ -1,3 +1,5 @@
+using SimpleTypeScript.Syntax;
+using SimpleTypeScript.Values;
 using System.Text;
 
 namespace SimpleTypeScript;
@@ -17,9 +19,6 @@ namespace SimpleTypeScript;
 /// </summary>
 public abstract class TsValue
 {
-    /// <summary>Two spaces, which is what hand-written TypeScript is conventionally formatted at.</summary>
-    private const string _indent = "  ";
-
     private protected TsValue()
     {
     }
@@ -68,5 +67,5 @@ public abstract class TsValue
 
     /// <summary>Indents to <paramref name="depth"/>, for a container writing a member on its own line.</summary>
     private protected static void Indent(StringBuilder builder, int depth) =>
-        builder.Insert(builder.Length, _indent, depth);
+        TsSyntax.AppendIndent(builder, depth);
 }

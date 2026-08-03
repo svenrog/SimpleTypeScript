@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text;
 
-namespace SimpleTypeScript;
+namespace SimpleTypeScript.Syntax;
 
 /// <summary>
 /// The lexical rules of the language being emitted: how a string literal is escaped, what may appear
@@ -29,6 +29,13 @@ internal static class TsSyntax
 
     /// <inheritdoc cref="LineSeparator" />
     internal const char ParagraphSeparator = (char)0x2029;
+
+    /// <summary>Two spaces, which is what hand-written TypeScript is conventionally formatted at.</summary>
+    private const string _indentation = "  ";
+
+    /// <summary>Indents to <paramref name="depth"/>, for anything writing on a line of its own.</summary>
+    internal static void AppendIndent(StringBuilder builder, int depth) =>
+        builder.Insert(builder.Length, _indentation, depth);
 
     /// <summary><paramref name="value"/> as a double-quoted string literal.</summary>
     internal static string String(string value)
