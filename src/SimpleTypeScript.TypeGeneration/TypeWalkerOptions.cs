@@ -36,10 +36,16 @@ public sealed class TypeWalkerOptions
     public EnumStyle EnumStyle { get; init; } = EnumStyle.StringUnion;
 
     /// <summary>
-    /// Whether members are written <c>readonly</c>. On by default: a generated shape usually describes what
-    /// a consumer <em>receives</em>, and a payload it also builds is the smaller half of the work.
+    /// Whether members are written <c>readonly</c>, for a shape describing what a consumer only ever
+    /// receives. Off by default, which is what a generated type looks like everywhere else.
+    /// <para>
+    /// <b>It is as shallow as the language's own.</b> <c>readonly lines: Line[]</c> refuses
+    /// <c>order.lines = []</c> and permits <c>order.lines.push(x)</c> — the assignment nobody writes and the
+    /// mutation they do. Saying it properly would need the elements to be readonly as well, which nothing
+    /// here can spell yet, so this is worth asking for only where the shallow half is what you wanted.
+    /// </para>
     /// </summary>
-    public bool ReadOnlyMembers { get; init; } = true;
+    public bool ReadOnlyMembers { get; init; }
 
     /// <summary>
     /// When the producer leaves a member out of the payload altogether, mirroring the option of the same

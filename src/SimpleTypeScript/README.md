@@ -52,7 +52,7 @@ export type ScanStatus = "Queued" | "Running";
 
 /** One scan, as the API returns it. */
 export interface ScanSummary {
-  readonly id: string;
+  id: string;
   status: ScanStatus;
   /** Null while running. */
   finishedAt: string | null;
