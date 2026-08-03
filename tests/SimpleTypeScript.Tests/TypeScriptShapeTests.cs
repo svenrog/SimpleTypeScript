@@ -64,7 +64,7 @@ public sealed class TypeScriptShapeTests
         var rendered = Render(module => module.Interface(
             "Scan",
             [
-                new TsMember("id", TsType.String, doc: "Assigned when the scan is queued.", isReadOnly: true),
+                new TsMember("id", TsType.String) { IsReadOnly = true, Doc = "Assigned when the scan is queued." },
                 new TsMember("domain", TsType.String),
             ],
             doc: "One scan, as the API returns it."));

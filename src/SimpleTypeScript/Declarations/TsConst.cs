@@ -1,3 +1,4 @@
+using SimpleTypeScript.Values;
 using System.Text;
 
 namespace SimpleTypeScript.Declarations;
@@ -7,31 +8,28 @@ internal sealed class TsConst : TsDeclaration
 {
     private readonly TsValue _value;
     private readonly TsType? _type;
-    private readonly bool _asConst;
 
-    private TsConst(string name, TsValue value, TsType? type, bool asConst, string? doc)
+    private TsConst(string name, TsValue value, TsType? type, string? doc)
         : base(name, "binding", TsDeclarationSpace.Value, doc)
     {
         _value = value;
         _type = type;
-        _asConst = asConst;
     }
 
     /// <summary>
     /// <paramref name="type"/> annotates the declaration where the inferred type would be too narrow to
-    /// assign into; <paramref name="asConst"/> keeps the literal's own type for a caller that indexes it by a
-    /// known key. The two are mutually exclusive — <c>as const</c> on an annotated declaration is either
-    /// redundant or a conflict, and TypeScript accepts some of those silently.
+    /// assign into. It cannot be given for a value asserted <c>as const</c>: that assertion makes the
+    /// literal readonly, and an annotation is then either redundant or the conflict of assigning a readonly
+    /// literal into a mutable shape — which TypeScript accepts some of silently.
     /// </summary>
-    internal static TsConst Create(
-        string name, TsValue value, TsType? type = null, bool asConst = false, string? doc = null)
+    internal static TsConst Create(string name, TsValue value, TsType? type = null, string? doc = null)
     {
-        if (type is not null && asConst)
+        if (type is not null && value is TsAsConstValue)
         {
             throw new TypeScriptException($"{name} is both annotated and `as const`; one of the two is meant");
         }
 
-        return new TsConst(name, value, type, asConst, doc);
+        return new TsConst(name, value, type, doc);
     }
 
     /// <inheritdoc />
@@ -46,6 +44,6 @@ internal sealed class TsConst : TsDeclaration
 
         builder.Append(" = ");
         _value.Write(builder, 0);
-        builder.Append(_asConst ? " as const;" : ";");
+        builder.Append(';');
     }
 }

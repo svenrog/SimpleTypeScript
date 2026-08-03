@@ -9,7 +9,7 @@ decides how each of them is spelled, once, so every generator writing through it
 
 ```csharp
 var module = new TsModule()
-    .Const("LOCALES", TsValue.Array(["en-US", "sv-SE"]), asConst: true)
+    .Const("LOCALES", TsValue.AsConst(TsValue.Array(["en-US", "sv-SE"])))
     .Const(
         "MESSAGES",
         TsValue.Object(new Dictionary<string, string> { ["greeting"] = "Hej värld" }),
@@ -40,9 +40,9 @@ var module = new TsModule()
     .Interface(
         "ScanSummary",
         [
-            new TsMember("id", TsType.String, isReadOnly: true),
+            new TsMember("id", TsType.String) { IsReadOnly = true },
             new TsMember("status", TsType.Of("ScanStatus")),
-            new TsMember("finishedAt", TsType.Union([TsType.String, TsType.Null]), doc: "Null while running."),
+            new TsMember("finishedAt", TsType.Union([TsType.String, TsType.Null])) { Doc = "Null while running." },
         ],
         doc: "One scan, as the API returns it.");
 ```

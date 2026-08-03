@@ -4,13 +4,13 @@
 using SimpleTypeScript;
 
 var module = new TsModule()
-    .Const("LOCALES", TsValue.Array(["en-US", "sv-SE"]), asConst: true)
+    .Const("LOCALES", TsValue.AsConst(TsValue.Array(["en-US", "sv-SE"])))
     .TypeAlias("Status", TsType.Union([TsType.StringLiteral("Open"), TsType.StringLiteral("Shipped")]))
     .Interface(
         "Order",
         [
-            new TsMember("id", TsType.String, doc: "The identity.", isReadOnly: true),
-            new TsMember("note", TsType.String, isReadOnly: true, isOptional: true),
+            new TsMember("id", TsType.String) { IsReadOnly = true, Doc = "The identity." },
+            new TsMember("note", TsType.String) { IsReadOnly = true, IsOptional = true },
             new TsMember("status", TsType.ValuesOf("Status")),
             new TsMember("totals", TsType.Record(TsType.String, TsType.Number)),
             new TsMember("tags", TsType.ArrayOf(TsType.Union([TsType.String, TsType.Null]))),

@@ -15,9 +15,8 @@ public sealed class TsModule
     private readonly HashSet<(TsDeclarationSpace Space, string Name)> _bound = [];
 
     /// <summary>Adds an exported <c>const</c>. See <see cref="TsConst.Create"/> for the arguments.</summary>
-    public TsModule Const(
-        string name, TsValue value, TsType? type = null, bool asConst = false, string? doc = null) =>
-        Add(TsConst.Create(name, value, type, asConst, doc));
+    public TsModule Const(string name, TsValue value, TsType? type = null, string? doc = null) =>
+        Add(TsConst.Create(name, value, type, doc));
 
     /// <summary>Adds an exported <c>interface</c>, its members in the order given.</summary>
     public TsModule Interface(string name, IEnumerable<TsMember> members, string? doc = null) =>

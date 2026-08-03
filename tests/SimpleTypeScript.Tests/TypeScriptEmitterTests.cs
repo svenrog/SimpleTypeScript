@@ -181,7 +181,7 @@ public sealed class TypeScriptEmitterTests
             .Const("X", TsValue.Null));
 
         var pair = new TsModule()
-            .Const("Status", TsValue.Object(new Dictionary<string, string> { ["Open"] = "Open" }), asConst: true)
+            .Const("Status", TsValue.AsConst(TsValue.Object(new Dictionary<string, string> { ["Open"] = "Open" })))
             .TypeAlias("Status", TsType.ValuesOf("Status"))
             .Render(TsComment.Empty());
 
@@ -197,7 +197,7 @@ public sealed class TypeScriptEmitterTests
     public void Writes_an_optional_member_as_one()
     {
         var rendered = new TsModule()
-            .Interface("Shape", [new TsMember("note", TsType.String, isReadOnly: true, isOptional: true)])
+            .Interface("Shape", [new TsMember("note", TsType.String) { IsReadOnly = true, IsOptional = true }])
             .Render(TsComment.Empty());
 
         Assert.Contains("  readonly note?: string;\n", rendered, StringComparison.Ordinal);
@@ -209,7 +209,7 @@ public sealed class TypeScriptEmitterTests
         Assert.Throws<TypeScriptException>(() => new TsModule().Const("not a name", TsValue.Null));
         Assert.Throws<TypeScriptException>(() => new TsModule().Const("class", TsValue.Null));
         Assert.Throws<TypeScriptException>(
-            () => new TsModule().Const("X", TsValue.Null, TsType.String, asConst: true));
+            () => new TsModule().Const("X", TsValue.AsConst(TsValue.Null), TsType.String));
         Assert.Throws<TypeScriptException>(() => new TsModule().Render(TsComment.Empty()));
     }
 

@@ -8,9 +8,18 @@ All notable changes to this project are documented here.
 version — and `EnablePackageValidation` holds the packages to that rather than leaving it a promise, once
 this tag gives it a baseline to compare against. What that made worth finishing first is everything below.
 
-**One break against 0.5.0**: `TsMember`'s constructor takes `isOptional`. Source-compatible, so nothing stops
-compiling, but an assembly built against 0.5.0 needs rebuilding rather than only restoring. It is the last
-change of that shape this package will make without a major version.
+**Breaking against 0.5.0**, and deliberately, since this is where that stops being free. Two signatures were
+accreting parameters — a new option meant another argument and another break, which is the shape a settled
+API cannot have:
+
+- **`TsMember`** takes the name and type it *is*; how it is written is set on it.
+  `new TsMember("id", TsType.String) { IsReadOnly = true, Doc = "The identity." }`. Two trailing booleans
+  read as a bare `true` at a call site that said which was which nowhere. `Name` and `Type` are public with
+  it. The next modifier is a property rather than a signature.
+- **`TsModule.Const`** loses `asConst`, and `TsValue.AsConst(value)` carries the assertion instead — which
+  is where the language puts it, on the expression rather than the declaration. `type` and `asConst` were
+  mutually exclusive and refused each other at run time; two parameters that cannot both be set is a
+  signature describing the wrong thing. Nothing about the generated output changed.
 
 Both packages now target **`net8.0` and `net10.0`**, and the test suite runs on each. A build-time generator
 is consumed by whatever the team's application targets, and the newest framework is not usually it. The only

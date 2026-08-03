@@ -82,7 +82,7 @@ public sealed class ScalingTests
             module.Interface(
                 $"Shape{index}",
                 [
-                    new TsMember("id", TsType.String, doc: "The identity."),
+                    new TsMember("id", TsType.String) { Doc = "The identity." },
                     new TsMember("count", TsType.Number),
                     new TsMember("tags", TsType.ArrayOf(TsType.String)),
                     new TsMember("absent", TsType.Union([TsType.String, TsType.Null])),
