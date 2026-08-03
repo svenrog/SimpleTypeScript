@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="CHANGELOG.md" />
+    <File Path="LICENSE.txt" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="tests/SimpleTypeScript.Tests/SimpleTypeScript.Tests.csproj" />
+  </Folder>
+  <Project Path="src/SimpleTypeScript/SimpleTypeScript.csproj" />
+</Solution>

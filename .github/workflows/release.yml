@@ -1,0 +1,52 @@
+name: release
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: nuget
+    permissions:
+      contents: read
+      id-token: write   # required for NuGet Trusted Publishing (OIDC)
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0   # MinVer needs full history + tags
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      # ContinuousIntegrationBuild belongs here rather than on the pack below: it is a compile-time property
+      # — deterministic source paths, which is what makes SourceLink resolve — so setting it on a pack that
+      # runs with --no-build reaches an assembly that was already compiled without it.
+      - name: Build
+        run: dotnet build SimpleTypeScript.slnx -c Release -p:ContinuousIntegrationBuild=true
+
+      - name: Test
+        run: dotnet test SimpleTypeScript.slnx -c Release --no-build
+
+      - name: Pack
+        run: dotnet pack SimpleTypeScript.slnx -c Release --no-build -p:ContinuousIntegrationBuild=true -o artifacts/pkg
+
+      # Trusted Publishing: configure a trust policy on nuget.org for
+      # svenrog/SimpleTypeScript + release.yml, and set the NUGET_USER repo
+      # variable to the nuget.org account name.
+      - name: NuGet login (OIDC)
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: ${{ vars.NUGET_USER }}
+
+      - name: Push packages
+        run: >
+          dotnet nuget push "artifacts/pkg/*.nupkg"
+          --api-key ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate

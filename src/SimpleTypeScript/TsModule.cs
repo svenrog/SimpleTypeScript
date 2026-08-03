@@ -1,0 +1,59 @@
+using System.Text;
+
+namespace SimpleTypeScript;
+
+/// <summary>
+/// A TypeScript module: a header comment, then exported declarations. It holds declarations rather than
+/// their text, so what a module <em>is</em> stays inspectable until the moment it is written — and the
+/// spelling of a declaration is decided in one place, which is what lets a second generator inherit the
+/// formatting instead of restating it and drifting from the first.
+/// </summary>
+public sealed class TsModule
+{
+    private readonly List<TsDeclaration> _declarations = [];
+
+    /// <summary>Adds an exported <c>const</c>. See <see cref="TsDeclaration.Const"/> for the arguments.</summary>
+    public TsModule Const(
+        string name, TsValue value, TsType? type = null, bool asConst = false, string? doc = null)
+    {
+        _declarations.Add(TsDeclaration.Const(name, value, type, asConst, doc));
+        return this;
+    }
+
+    /// <summary>
+    /// The finished module, <paramref name="header"/> first. What the header says is the caller's — nothing
+    /// about a do-not-edit notice is a fact about TypeScript.
+    /// <para>
+    /// Line endings are <c>\n</c> throughout rather than the platform's, so the same declarations produce the
+    /// same bytes wherever the generator runs; otherwise regenerating on another machine rewrites every line.
+    /// </para>
+    /// </summary>
+    public string Render(TsComment header)
+    {
+        if (_declarations.Count == 0)
+        {
+            throw new TypeScriptException("the module declares nothing");
+        }
+
+        var builder = new StringBuilder();
+
+        header.Write(builder);
+        if (!header.IsEmpty)
+        {
+            builder.Append('\n');
+        }
+
+        for (var index = 0; index < _declarations.Count; index++)
+        {
+            if (index > 0)
+            {
+                builder.Append('\n');
+            }
+
+            _declarations[index].Write(builder);
+            builder.Append('\n');
+        }
+
+        return builder.ToString();
+    }
+}

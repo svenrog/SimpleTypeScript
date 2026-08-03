@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsPackable>true</IsPackable>
+    <PackageId>SimpleTypeScript</PackageId>
+    <Description>An emitter for generated TypeScript: build a module out of declarations, types and values, and it is spelled correctly once — string literals escaped for ECMAScript source rather than JSON, comments that cannot be closed from inside, numbers a parser reads the same in every culture, and byte-stable output across machines.</Description>
+    <PackageTags>typescript;codegen;source-generator;emitter;ecmascript</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../LICENSE.txt" Pack="true" PackagePath="/" />
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+</Project>
