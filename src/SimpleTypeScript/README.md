@@ -1,4 +1,8 @@
-# SimpleTypeScript
+# SimpleTypeScript 📘
+
+[![Platform](https://img.shields.io/badge/Platform-.NET%2010-blue.svg?style=flat)](https://dotnet.microsoft.com/)
+[![NuGet](https://img.shields.io/nuget/v/SimpleTypeScript)](https://www.nuget.org/packages/SimpleTypeScript)
+[![License: MIT](https://img.shields.io/github/license/svenrog/SimpleTypeScript)](https://github.com/svenrog/SimpleTypeScript/blob/master/LICENSE.txt)
 
 An emitter for generated TypeScript. Build a module out of declarations, types and values; the library
 decides how each of them is spelled, once, so every generator writing through it produces the same shape.

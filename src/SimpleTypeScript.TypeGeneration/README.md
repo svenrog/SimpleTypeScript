@@ -1,4 +1,8 @@
-# SimpleTypeScript.TypeGeneration
+# SimpleTypeScript.TypeGeneration 📘
+
+[![Platform](https://img.shields.io/badge/Platform-.NET%2010-blue.svg?style=flat)](https://dotnet.microsoft.com/)
+[![NuGet](https://img.shields.io/nuget/v/SimpleTypeScript.TypeGeneration)](https://www.nuget.org/packages/SimpleTypeScript.TypeGeneration)
+[![License: MIT](https://img.shields.io/github/license/svenrog/SimpleTypeScript)](https://github.com/svenrog/SimpleTypeScript/blob/master/LICENSE.txt)
 
 Generate TypeScript from C# types: give it roots, and it follows what their members reach — an interface per
 shape, a string union per enum — written through

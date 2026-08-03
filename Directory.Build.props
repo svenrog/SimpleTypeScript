@@ -22,6 +22,7 @@
     <Copyright>Copyright (c) 2026 Sven-Erik Jonsson</Copyright>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageProjectUrl>https://github.com/svenrog/SimpleTypeScript</PackageProjectUrl>
     <RepositoryUrl>https://github.com/svenrog/SimpleTypeScript</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

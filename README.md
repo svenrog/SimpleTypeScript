@@ -1,4 +1,10 @@
-# SimpleTypeScript
+# SimpleTypeScript 📘
+
+[![Platform](https://img.shields.io/badge/Platform-.NET%2010-blue.svg?style=flat)](https://dotnet.microsoft.com/)
+[![NuGet](https://img.shields.io/nuget/v/SimpleTypeScript?label=SimpleTypeScript)](https://www.nuget.org/packages/SimpleTypeScript)
+[![NuGet](https://img.shields.io/nuget/v/SimpleTypeScript.TypeGeneration?label=SimpleTypeScript.TypeGeneration)](https://www.nuget.org/packages/SimpleTypeScript.TypeGeneration)
+[![Build](https://img.shields.io/github/actions/workflow/status/svenrog/SimpleTypeScript/build.yml?branch=master)](https://github.com/svenrog/SimpleTypeScript/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/github/license/svenrog/SimpleTypeScript)](https://github.com/svenrog/SimpleTypeScript/blob/master/LICENSE.txt)
 
 Generated TypeScript, spelled correctly once. Two packages: one writes the language, the other reads C#
 types into it.
