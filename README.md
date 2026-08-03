@@ -21,7 +21,7 @@ new TypeWalker(new TypeWalkerOptions { Documentation = new XmlDocumentationSourc
     .Add(typeof(Order))
     .Declare(module);
 
-File.WriteAllText(path, module.Render(TsComment.Lines(["GENERATED — do not edit."])));
+File.WriteAllText(path, module.Render());
 ```
 
 ```ts
