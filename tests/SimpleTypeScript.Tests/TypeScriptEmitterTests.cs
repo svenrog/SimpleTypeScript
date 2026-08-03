@@ -13,7 +13,7 @@ public sealed class TypeScriptEmitterTests
     private const char _paragraphSeparator = (char)0x2029;
 
     private static string Render(TsValue value) =>
-        new TsModule().Const("X", value).Render(TsComment.Lines([]));
+        new TsModule().Const("X", value).Render(TsComment.Empty());
 
     // Text is escaped for ECMAScript source, not for JSON: everything a string literal cannot carry raw.
     [Theory]
@@ -119,7 +119,7 @@ public sealed class TypeScriptEmitterTests
         // No banner, no gap: the file starts at its first declaration.
         Assert.StartsWith(
             "export const X",
-            new TsModule().Const("X", TsValue.Null).Render(TsComment.Lines([])),
+            new TsModule().Const("X", TsValue.Null).Render(TsComment.Empty()),
             StringComparison.Ordinal);
     }
 
@@ -141,7 +141,7 @@ public sealed class TypeScriptEmitterTests
     [Fact]
     public void Breaks_a_comment_terminator_in_a_doc_but_leaves_a_line_comment_alone()
     {
-        var doc = new TsModule().Const("X", TsValue.String("v"), doc: "ends */ here").Render(TsComment.Lines([]));
+        var doc = new TsModule().Const("X", TsValue.String("v"), doc: "ends */ here").Render(TsComment.Empty());
         Assert.Contains("/** ends *\\/ here */", doc, StringComparison.Ordinal);
 
         var header = new TsModule().Const("X", TsValue.String("v")).Render(TsComment.Lines(["a */ b"]));
@@ -155,7 +155,7 @@ public sealed class TypeScriptEmitterTests
         Assert.Throws<TypeScriptException>(() => new TsModule().Const("class", TsValue.Null));
         Assert.Throws<TypeScriptException>(
             () => new TsModule().Const("X", TsValue.Null, TsType.String, asConst: true));
-        Assert.Throws<TypeScriptException>(() => new TsModule().Render(TsComment.Lines([])));
+        Assert.Throws<TypeScriptException>(() => new TsModule().Render(TsComment.Empty()));
     }
 
     /// <summary>

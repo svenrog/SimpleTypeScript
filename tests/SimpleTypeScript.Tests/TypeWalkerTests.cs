@@ -17,7 +17,7 @@ public sealed class TypeWalkerTests
         var module = new TsModule();
         new TypeWalker(options).Add(roots).Declare(module);
 
-        return module.Render(TsComment.Lines([]));
+        return module.Render(TsComment.Empty());
     }
 
     [Fact]

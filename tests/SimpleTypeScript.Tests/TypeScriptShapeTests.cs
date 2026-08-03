@@ -16,7 +16,7 @@ public sealed class TypeScriptShapeTests
         var module = new TsModule();
         declare(module);
 
-        return module.Render(TsComment.Lines([]));
+        return module.Render(TsComment.Empty());
     }
 
     [Fact]

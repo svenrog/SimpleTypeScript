@@ -60,7 +60,7 @@ public sealed class ScalingTests
         walker.Declare(module);
 
         var declared = module
-            .Render(TsComment.Lines([]))
+            .Render(TsComment.Empty())
             .Split('\n')
             .Where(line => line.StartsWith("export interface ", StringComparison.Ordinal))
             .Select(line => line["export interface ".Length..].TrimEnd(' ', '{'))
@@ -97,6 +97,6 @@ public sealed class ScalingTests
     {
         var module = new TsModule();
         new TypeWalker().Add(SyntheticTypes.Graph(types)[0]).Declare(module);
-        module.Render(TsComment.Lines([]));
+        module.Render(TsComment.Empty());
     }
 }

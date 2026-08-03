@@ -27,7 +27,7 @@ public sealed class AllocationTests
     {
         var module = new TsModule().Const("X", TsValue.String(_long));
 
-        Under(64_000, "a 4,000-character literal", () => module.Render(TsComment.Lines([])));
+        Under(64_000, "a 4,000-character literal", () => module.Render(TsComment.Empty()));
     }
 
     /// <summary>
@@ -40,9 +40,9 @@ public sealed class AllocationTests
         var value = TsValue.String(_long);
         var module = new TsModule().Const("X", value);
 
-        var plain = Allocation.PerCall(() => module.Render(TsComment.Lines([])));
+        var plain = Allocation.PerCall(() => module.Render(TsComment.Empty()));
         var escaped = Allocation.PerCall(() =>
-            new TsModule().Const("X", TsValue.String(_long.Replace('a', '"'))).Render(TsComment.Lines([])));
+            new TsModule().Const("X", TsValue.String(_long.Replace('a', '"'))).Render(TsComment.Empty()));
 
         // Escaping every character doubles the text and nothing else; anything much beyond that is a copy
         // per escape rather than one pass.

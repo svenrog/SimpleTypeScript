@@ -29,7 +29,7 @@ public class TextBenchmarks
     public string EscapedText() => Render(_escaped);
 
     private static string Render(string value) =>
-        new TsModule().Const("X", TsValue.String(value)).Render(TsComment.Lines([]));
+        new TsModule().Const("X", TsValue.String(value)).Render(TsComment.Empty());
 
     private static Dictionary<string, string> Entries(int count) =>
         Enumerable

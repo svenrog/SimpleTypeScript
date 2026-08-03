@@ -88,7 +88,7 @@ and no trimming or AOT caveat is carried into a consumer.
 | `TsValue` | A value literal: `String`, `Number`, `Boolean`, `Null`, `Array`, `Object`. Objects always break across lines; arrays stay on one while everything inside fits. |
 | `TsType` | An annotation: the primitives, `Null`, `Record<,>`, `T[]`, a named reference, and a union of any of them. |
 | `TsMember` | One property signature: a name, a type, `readonly`, a doc comment. |
-| `TsComment` | `Lines` for a `//` header, `Doc` for the `/** … */` an editor surfaces at the use site. |
+| `TsComment` | `Lines` for a `//` header, `Doc` for the `/** … */` an editor surfaces at the use site, `Empty` for a module that opens with no banner at all. |
 | `TypeScriptException` | The refusal: a binding name that is not one, a number with no literal form, an interface with no members. |
 
 A union is the one type here that does not close with its own syntax, so `TsType` tracks whether a container

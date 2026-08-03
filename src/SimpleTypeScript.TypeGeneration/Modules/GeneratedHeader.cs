@@ -21,6 +21,6 @@ public abstract class GeneratedHeader
 
     private sealed class NoHeader : GeneratedHeader
     {
-        public override TsComment For(string source) => TsComment.Lines([]);
+        public override TsComment For(string source) => TsComment.Empty();
     }
 }

@@ -34,6 +34,10 @@ public sealed class TsComment
     public static TsComment Lines(IEnumerable<string> text) =>
         new([.. text.SelectMany(line => Split(line, closeable: false))], isDoc: false);
 
+    /// <summary>An explicitly empty comment declaration.</summary>
+    public static TsComment Empty() =>
+        new([], isDoc: false);
+
     /// <summary>A <c>/** … */</c> doc comment, which editors surface at the use site.</summary>
     public static TsComment Doc(string text) => new([.. Split(text, closeable: true)], isDoc: true);
 

@@ -38,7 +38,7 @@ public sealed class TsModule
     /// <summary>
     /// The finished module, <paramref name="header"/> first. Omitting it takes the plainest do-not-edit
     /// notice there is, since anything built by this is generated; what a banner <em>says</em> is still the
-    /// caller's, and <see cref="TsComment.Lines"/> over nothing writes none at all.
+    /// caller's, and <see cref="TsComment.Empty"/> is how a module opens with none.
     /// <para>
     /// Line endings are <c>\n</c> throughout rather than the platform's, so the same declarations produce the
     /// same bytes wherever the generator runs; otherwise regenerating on another machine rewrites every line.
