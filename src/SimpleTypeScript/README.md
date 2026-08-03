@@ -9,7 +9,7 @@ decides how each of them is spelled, once, so every generator writing through it
 
 ```csharp
 var module = new TsModule()
-    .Const("LOCALES", TsValue.Array(["en-US", "sv-SE"]), asConst: true)
+    .Const("LOCALES", TsValue.AsConst(TsValue.Array(["en-US", "sv-SE"])))
     .Const(
         "MESSAGES",
         TsValue.Object(new Dictionary<string, string> { ["greeting"] = "Hej värld" }),

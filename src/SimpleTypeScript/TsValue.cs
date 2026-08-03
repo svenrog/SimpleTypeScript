@@ -53,6 +53,13 @@ public abstract class TsValue
         Object(entries.Select(entry => KeyValuePair.Create(entry.Key, String(entry.Value))));
 
     /// <summary>
+    /// <paramref name="value"/> asserted as its own literal type — <c>as const</c> — which is what a caller
+    /// that indexes the literal by a known key, or reads a union off it, needs it to keep. An assertion on
+    /// the expression, which is where the language puts it and so where this does too.
+    /// </summary>
+    public static TsValue AsConst(TsValue value) => new TsAsConstValue(value);
+
+    /// <summary>
     /// Writes this value at <paramref name="depth"/>. The opening token goes where the caller already is — a
     /// value never indents its own first line, because it may follow <c>= </c> on a line already begun.
     /// </summary>

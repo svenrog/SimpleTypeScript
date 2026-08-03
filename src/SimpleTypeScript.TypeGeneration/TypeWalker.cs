@@ -184,7 +184,7 @@ public sealed class TypeWalker
         {
             EnumStyle.NumberUnion => module => module.TypeAlias(name, TsType.Union(Numbers(type)), doc),
             EnumStyle.ConstObject => module => module
-                .Const(name, TsValue.Object(names), asConst: true, doc: doc)
+                .Const(name, TsValue.AsConst(TsValue.Object(names)), doc: doc)
                 .TypeAlias(name, TsType.ValuesOf(name)),
             _ => module => module.TypeAlias(
                 name,

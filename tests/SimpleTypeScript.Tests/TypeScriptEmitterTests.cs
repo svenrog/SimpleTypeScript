@@ -181,7 +181,7 @@ public sealed class TypeScriptEmitterTests
             .Const("X", TsValue.Null));
 
         var pair = new TsModule()
-            .Const("Status", TsValue.Object(new Dictionary<string, string> { ["Open"] = "Open" }), asConst: true)
+            .Const("Status", TsValue.AsConst(TsValue.Object(new Dictionary<string, string> { ["Open"] = "Open" })))
             .TypeAlias("Status", TsType.ValuesOf("Status"))
             .Render(TsComment.Empty());
 
@@ -209,7 +209,7 @@ public sealed class TypeScriptEmitterTests
         Assert.Throws<TypeScriptException>(() => new TsModule().Const("not a name", TsValue.Null));
         Assert.Throws<TypeScriptException>(() => new TsModule().Const("class", TsValue.Null));
         Assert.Throws<TypeScriptException>(
-            () => new TsModule().Const("X", TsValue.Null, TsType.String, asConst: true));
+            () => new TsModule().Const("X", TsValue.AsConst(TsValue.Null), TsType.String));
         Assert.Throws<TypeScriptException>(() => new TsModule().Render(TsComment.Empty()));
     }
 

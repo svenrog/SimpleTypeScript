@@ -4,7 +4,7 @@
 using SimpleTypeScript;
 
 var module = new TsModule()
-    .Const("LOCALES", TsValue.Array(["en-US", "sv-SE"]), asConst: true)
+    .Const("LOCALES", TsValue.AsConst(TsValue.Array(["en-US", "sv-SE"])))
     .TypeAlias("Status", TsType.Union([TsType.StringLiteral("Open"), TsType.StringLiteral("Shipped")]))
     .Interface(
         "Order",
