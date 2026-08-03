@@ -51,6 +51,12 @@ declaration needs no imports at all, which is what let a consumer retire a secon
   construct needing it is the point to write a real precedence rank rather than a second boolean.
 - **A refusal is a `TypeScriptException`**, thrown rather than emitted — generated code is compiled before
   anyone reads it.
+- **Neither package declares an attribute.** The walk reads `System.Text.Json`'s, the compiler's own
+  `RequiredMemberAttribute`, and DataAnnotations' `[Required]` — all in the shared framework — so a
+  contracts assembly is generated from without referencing anything here. An attribute of ours would put
+  this package into the dependency graph of the types it describes, and those types are usually the thing a
+  solution most wants to keep clean. A per-member switch that needs marking up the C# is the shape to
+  refuse; a walk-level option, or one read from an attribute the producer already carries, is not.
 
 ## Tests
 

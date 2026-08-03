@@ -116,8 +116,15 @@ ever arrives as a missing key, which is what `?` already says.
 
 `ReadOnlyMembers` writes `readonly` on every member. It is off by default — which is what a generated type
 looks like in the generators that offer this at all: `--immutable` in openapi-typescript, `immutableTypes`
-in graphql-codegen, `[TsReadonly]` per member in TypeGen. None of them makes it the default. Worth knowing
-what you get before asking for it:
+in graphql-codegen, `[TsReadonly]` per member in TypeGen. None of them makes it the default.
+
+It is an option rather than an attribute on purpose. **Nothing here declares an attribute**: the walk reads
+`System.Text.Json`'s, the compiler's own `required`, and DataAnnotations' `[Required]`, all of which are in
+the shared framework — so the assembly holding your contracts is generated from without referencing this
+one. Per-member marking would buy granularity by putting a codegen package in the dependency graph of the
+types it describes.
+
+Worth knowing what you get before asking for it:
 
 ```ts
 readonly lines: Line[];   // order.lines = []      refused
