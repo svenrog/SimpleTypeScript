@@ -2,7 +2,15 @@
 
 All notable changes to this project are documented here.
 
-## Unreleased
+## 1.0.0
+
+**The API is settled.** From here, removing or changing a member in a way a consumer would notice is a major
+version — and `EnablePackageValidation` holds the packages to that rather than leaving it a promise, once
+this tag gives it a baseline to compare against. What that made worth finishing first is everything below.
+
+**One break against 0.5.0**: `TsMember`'s constructor takes `isOptional`. Source-compatible, so nothing stops
+compiling, but an assembly built against 0.5.0 needs rebuilding rather than only restoring. It is the last
+change of that shape this package will make without a major version.
 
 Both packages now target **`net8.0` and `net10.0`**, and the test suite runs on each. A build-time generator
 is consumed by whatever the team's application targets, and the newest framework is not usually it. The only
