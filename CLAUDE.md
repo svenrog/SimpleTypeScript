@@ -25,6 +25,12 @@ earns its own namespace under the root; a new instance of an existing kind does 
 The internals are reachable across namespaces without ceremony because `internal` is assembly-wide, and a
 file in `SimpleTypeScript.Types` sees the root namespace without a `using` — it is a parent of its own.
 
+## Not here yet
+
+**Imports.** A generator emitting one type per file needs `import type { X } from "./x";`, which is a
+declaration kind plus a file graph — two files, not one. Nothing has needed it: a single module holding every
+declaration needs no imports at all, which is what let a consumer retire a second generator without one.
+
 ## Invariants
 
 - **A value is built, never serialized.** Nothing reflects over a type, which is what keeps the package
