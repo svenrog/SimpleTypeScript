@@ -19,7 +19,7 @@ new TypeWalker(new TypeWalkerOptions
     .Add(typeof(Order), typeof(Customer))
     .Declare(module);
 
-File.WriteAllText(path, module.Render(TsComment.Lines(["GENERATED — do not edit."])));
+File.WriteAllText(path, module.Render());
 ```
 
 Given this C#:
