@@ -29,10 +29,11 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <!-- Set PackageValidationBaselineVersion to 1.0.0 once that tag exists: from then on an API a release
-         removed or changed fails the pack rather than reaching a consumer's restore. Until there is a
-         version to be compatible with, this checks only that the frameworks in a package agree. -->
+    <!-- The baseline is what makes the stability promise a build step: an API removed or changed against
+         the last major fails the pack rather than reaching a consumer's restore. It moves to the next major
+         when there is one, and never to a minor — that is the whole point of it. -->
     <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageValidationBaselineVersion>1.0.0</PackageValidationBaselineVersion>
   </PropertyGroup>
 
   <ItemGroup>
