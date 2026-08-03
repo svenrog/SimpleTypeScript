@@ -18,7 +18,8 @@ API cannot have:
   it. The next modifier is a property rather than a signature.
 - **`readonly` is opt-in.** `ReadOnlyMembers` was on, so every generated member carried it. It is off now,
   which is what a generated type looks like in the generators that offer this at all — `--immutable`,
-  `immutableTypes`, never a default. It also over-promised: TypeScript's `readonly` stops at the member, so
+  `immutableTypes`, `[TsReadonly]` — never a default. It also over-promised: TypeScript's `readonly` stops
+  at the member, so
   `readonly lines: Line[]` refuses `order.lines = []` and permits `order.lines.push(x)`. Saying it properly
   needs `readonly lines: readonly Line[]`, which the emitter cannot spell, so what shipped was the half that
   blocks the assignment nobody writes. Set `ReadOnlyMembers = true` to keep the old output.

@@ -115,8 +115,9 @@ ever arrives as a missing key, which is what `?` already says.
 ### `readonly` is opt-in, and shallow
 
 `ReadOnlyMembers` writes `readonly` on every member. It is off by default — which is what a generated type
-looks like in the generators that offer this at all, where it is `--immutable` or `immutableTypes` and never
-the default. Worth knowing what you get before asking for it:
+looks like in the generators that offer this at all: `--immutable` in openapi-typescript, `immutableTypes`
+in graphql-codegen, `[TsReadonly]` per member in TypeGen. None of them makes it the default. Worth knowing
+what you get before asking for it:
 
 ```ts
 readonly lines: Line[];   // order.lines = []      refused
