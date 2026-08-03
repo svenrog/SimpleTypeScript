@@ -98,6 +98,32 @@ public sealed class TypeScriptEmitterTests
     }
 
     /// <summary>
+    /// A banner and the code under it are two things, and one blank line is what says so. Asserted because
+    /// nothing else would notice: a module missing it still compiles, still type-checks, and reads as a file
+    /// whose first declaration is part of the notice above it.
+    /// </summary>
+    [Fact]
+    public void Separates_a_header_from_the_first_declaration_by_one_blank_line()
+    {
+        Assert.StartsWith(
+            "// note\n\nexport const X",
+            new TsModule().Const("X", TsValue.Null).Render(TsComment.Lines(["note"])),
+            StringComparison.Ordinal);
+
+        // The default banner is a header like any other, and gets the same gap.
+        Assert.Contains(
+            "— do not edit.\n\nexport const X",
+            new TsModule().Const("X", TsValue.Null).Render(),
+            StringComparison.Ordinal);
+
+        // No banner, no gap: the file starts at its first declaration.
+        Assert.StartsWith(
+            "export const X",
+            new TsModule().Const("X", TsValue.Null).Render(TsComment.Lines([])),
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
     /// A comment ends at a line terminator, so text carrying one would put the rest of it into the module as
     /// code. Every terminator has to re-open the comment, including the two only ECMAScript treats as one.
     /// </summary>

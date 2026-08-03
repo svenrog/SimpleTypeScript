@@ -6,6 +6,7 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/Tests/">
+    <Project Path="tests/SimpleTypeScript.Benchmarks/SimpleTypeScript.Benchmarks.csproj" />
     <Project Path="tests/SimpleTypeScript.Tests/SimpleTypeScript.Tests.csproj" />
   </Folder>
   <Project Path="src/SimpleTypeScript/SimpleTypeScript.csproj" />

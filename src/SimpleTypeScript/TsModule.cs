@@ -36,14 +36,15 @@ public sealed class TsModule
     }
 
     /// <summary>
-    /// The finished module, <paramref name="header"/> first. What the header says is the caller's — nothing
-    /// about a do-not-edit notice is a fact about TypeScript.
+    /// The finished module, <paramref name="header"/> first. Omitting it takes the plainest do-not-edit
+    /// notice there is, since anything built by this is generated; what a banner <em>says</em> is still the
+    /// caller's, and <see cref="TsComment.Lines"/> over nothing writes none at all.
     /// <para>
     /// Line endings are <c>\n</c> throughout rather than the platform's, so the same declarations produce the
     /// same bytes wherever the generator runs; otherwise regenerating on another machine rewrites every line.
     /// </para>
     /// </summary>
-    public string Render(TsComment header)
+    public string Render(TsComment? header = null)
     {
         if (_declarations.Count == 0)
         {
@@ -52,7 +53,11 @@ public sealed class TsModule
 
         var builder = new StringBuilder();
 
+        header ??= TsComment.Lines([Headers.Default]);
         header.Write(builder);
+
+        // A blank line under the banner, and none where there is no banner: what follows is the module's
+        // first declaration, not a continuation of the notice above it.
         if (!header.IsEmpty)
         {
             builder.Append('\n');
