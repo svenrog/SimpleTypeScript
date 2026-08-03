@@ -16,6 +16,11 @@ namespace SimpleTypeScript.TypeGeneration;
 /// drops a member and <c>[JsonPropertyName]</c> renames it, because a generator that reads the C# alone
 /// differs from the JSON in ways only a runtime notices.
 /// </para>
+/// <para>
+/// <b>One walk is one thread's.</b> It accumulates what it has reached, and the nullability context it reads
+/// annotations through is not thread-safe either — a generator producing several modules at once gives each
+/// its own.
+/// </para>
 /// </summary>
 public sealed class TypeWalker
 {

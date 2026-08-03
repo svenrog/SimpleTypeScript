@@ -190,6 +190,25 @@ foreach (var module in ModuleCatalog.From())
 A module that builds its declarations by hand implements `IGeneratedModule` directly; `TypeModule` is for the
 common case where a module *is* a set of roots.
 
+## What it does not read
+
+Named rather than discovered, because each is a shape that would otherwise generate and be quietly wrong:
+
+- **Polymorphism.** `[JsonDerivedType]` writes a discriminator and the derived members; the walk describes
+  the base shape it was given and nothing else.
+- **Fields.** Only properties are read, so `IncludeFields` and `[JsonInclude]` on a field do not reach the
+  output.
+- **`[JsonPropertyOrder]`.** Members follow declaration order, which changes the order of keys in the file
+  and never the shape.
+- **Imports.** One module holds every declaration it needs, so nothing imports anything. A generator wanting
+  one type per file needs a declaration kind and a file graph that are not here.
+- **Direction.** A shape describes what the producer *serializes*. The two ignore conditions naming a
+  direction — `WhenWriting` and `WhenReading` — are read that way round, which is backwards for a payload
+  the consumer builds rather than receives.
+- **64-bit precision.** `long`, `ulong` and `decimal` are `number`, which is what the serializer writes by
+  default and what a JSON number is. Above 2^53 that is lossy on the other side; a producer carrying such a
+  value as a string says so with a `Mappings` entry.
+
 ## Installing
 
 ```
@@ -201,4 +220,4 @@ and a consumer publishing NativeAOT keeps that by taking only the emitter.
 
 ## License
 
-MIT. See [LICENSE.txt](LICENSE.txt).
+MIT. See [LICENSE.txt](https://github.com/svenrog/SimpleTypeScript/blob/master/LICENSE.txt).

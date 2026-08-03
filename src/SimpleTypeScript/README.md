@@ -114,4 +114,4 @@ dotnet add package SimpleTypeScript
 
 ## License
 
-MIT. See [LICENSE.txt](LICENSE.txt).
+MIT. See [LICENSE.txt](https://github.com/svenrog/SimpleTypeScript/blob/master/LICENSE.txt).

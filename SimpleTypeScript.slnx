@@ -7,6 +7,7 @@
     <File Path="THIRD-PARTY-NOTICES.md" />
   </Folder>
   <Folder Name="/Tests/">
+    <Project Path="tests/SimpleTypeScript.AotConsumer/SimpleTypeScript.AotConsumer.csproj" />
     <Project Path="tests/SimpleTypeScript.Benchmarks/SimpleTypeScript.Benchmarks.csproj" />
     <Project Path="tests/SimpleTypeScript.Tests/SimpleTypeScript.Tests.csproj" />
   </Folder>

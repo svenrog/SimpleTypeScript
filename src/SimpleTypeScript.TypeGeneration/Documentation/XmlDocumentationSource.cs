@@ -13,6 +13,10 @@ namespace SimpleTypeScript.TypeGeneration.Documentation;
 /// through puts raw <c>&lt;para&gt;</c> tags and fully qualified crefs into a TypeScript comment. A
 /// <c>&lt;see cref&gt;</c> becomes the member's own name, which is what the sentence was reading as anyway.
 /// </para>
+/// <para>
+/// <b>One instance is one thread's.</b> Each assembly's file is read once and kept, and that cache is not
+/// guarded — sharing one across concurrent walks is what a second instance costs nothing to avoid.
+/// </para>
 /// </summary>
 public sealed class XmlDocumentationSource : IDocumentationSource
 {

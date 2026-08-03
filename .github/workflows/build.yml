@@ -38,6 +38,12 @@ jobs:
       - name: Test
         run: dotnet test SimpleTypeScript.slnx -c Release --no-build
 
+      # The emitter's AOT claim, published rather than asserted. IsAotCompatible turns on the trim and AOT
+      # analyzers, which the build above already fails on; what only a publish says is that the result links
+      # and runs. Its own RID, so no cross-compilation toolchain is in the way of the answer.
+      - name: Publish AOT (proves the emitter's claim)
+        run: dotnet publish tests/SimpleTypeScript.AotConsumer -c Release -r linux-x64
+
       # Pack on every PR as a validation gate; artifacts are not published here.
       - name: Pack (validation)
         run: dotnet pack SimpleTypeScript.slnx -c Release --no-build -o artifacts/pkg
