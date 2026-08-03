@@ -17,9 +17,13 @@ jobs:
         with:
           fetch-depth: 0   # MinVer needs full history + tags
 
+      # Both, because the packages target both and the test project runs on each — without the 8.0 runtime
+      # here, half the matrix is built and never executed.
       - uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: |
+            8.0.x
+            10.0.x
 
       - name: Restore
         run: dotnet restore SimpleTypeScript.slnx
@@ -37,6 +41,12 @@ jobs:
 
       - name: Test
         run: dotnet test SimpleTypeScript.slnx -c Release --no-build
+
+      # The emitter's AOT claim, published rather than asserted. IsAotCompatible turns on the trim and AOT
+      # analyzers, which the build above already fails on; what only a publish says is that the result links
+      # and runs. Its own RID, so no cross-compilation toolchain is in the way of the answer.
+      - name: Publish AOT (proves the emitter's claim)
+        run: dotnet publish tests/SimpleTypeScript.AotConsumer -c Release -r linux-x64
 
       # Pack on every PR as a validation gate; artifacts are not published here.
       - name: Pack (validation)

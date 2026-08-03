@@ -8,7 +8,13 @@ namespace SimpleTypeScript.Values;
 /// </summary>
 internal sealed class TsArrayValue(IReadOnlyList<TsValue> items) : TsValue
 {
-    internal override bool IsInline => items.All(item => item.IsInline);
+    /// <summary>
+    /// Answered once. It is asked of every level above this one as well as by the write below it, and
+    /// answering it by walking the items again makes a nested array cost its own depth.
+    /// </summary>
+    private readonly bool _isInline = items.All(item => item.IsInline);
+
+    internal override bool IsInline => _isInline;
 
     internal override void Write(StringBuilder builder, int depth)
     {

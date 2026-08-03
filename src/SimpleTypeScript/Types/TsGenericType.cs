@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace SimpleTypeScript.Types;
 
 /// <summary>
@@ -6,6 +8,20 @@ namespace SimpleTypeScript.Types;
 /// </summary>
 internal sealed class TsGenericType(string name, IReadOnlyList<TsType> arguments) : TsType
 {
-    public override string Render() =>
-        $"{name}<{string.Join(", ", arguments.Select(argument => argument.Render()))}>";
+    internal override void Write(StringBuilder builder)
+    {
+        builder.Append(name).Append('<');
+
+        for (var index = 0; index < arguments.Count; index++)
+        {
+            if (index > 0)
+            {
+                builder.Append(", ");
+            }
+
+            arguments[index].Write(builder);
+        }
+
+        builder.Append('>');
+    }
 }

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <PackageId>SimpleTypeScript.TypeGeneration</PackageId>
     <Description>Generate TypeScript declarations from C# types: walk a set of roots, follow what their members reach, and write an interface per type and a string-literal union per enum — reading the shape System.Text.Json actually serializes, not only the shape the C# declares.</Description>

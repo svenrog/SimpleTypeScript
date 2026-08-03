@@ -1,5 +1,6 @@
 using SimpleTypeScript.Syntax;
 using SimpleTypeScript.Types;
+using System.Text;
 
 namespace SimpleTypeScript;
 
@@ -86,7 +87,19 @@ public abstract class TsType
     }
 
     /// <summary>How the type is written.</summary>
-    public abstract string Render();
+    public string Render()
+    {
+        var builder = new StringBuilder();
+        Write(builder);
+
+        return builder.ToString();
+    }
+
+    /// <summary>
+    /// Appends how the type is written. A type is nested inside another far more often than it is asked for
+    /// on its own, and returning the text of each level would build a string per level to copy into the next.
+    /// </summary>
+    internal abstract void Write(StringBuilder builder);
 
     /// <summary>
     /// Whether a container has to parenthesise this type. The whole of the precedence model, and deliberately
@@ -97,5 +110,7 @@ public abstract class TsType
 
     /// <summary>Whether <paramref name="name"/> is a bare type reference, optionally dotted for a namespace.</summary>
     private static bool IsTypeReference(string name) =>
-        name.Length > 0 && name.Split('.').All(TsSyntax.IsIdentifier);
+        name.Contains('.')
+            ? name.Split('.').All(TsSyntax.IsIdentifier)
+            : TsSyntax.IsIdentifier(name);
 }

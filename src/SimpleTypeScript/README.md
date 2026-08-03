@@ -110,8 +110,8 @@ to build, not something to spell.
 dotnet add package SimpleTypeScript
 ```
 
-`net10.0`.
+`net8.0` and `net10.0`.
 
 ## License
 
-MIT. See [LICENSE.txt](LICENSE.txt).
+MIT. See [LICENSE.txt](https://github.com/svenrog/SimpleTypeScript/blob/master/LICENSE.txt).

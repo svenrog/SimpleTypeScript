@@ -17,7 +17,7 @@ internal abstract class TsDeclaration
 {
     private readonly TsComment? _doc;
 
-    private protected TsDeclaration(string name, string kind, string? doc)
+    private protected TsDeclaration(string name, string kind, TsDeclarationSpace space, string? doc)
     {
         if (!TsSyntax.IsIdentifier(name))
         {
@@ -25,11 +25,15 @@ internal abstract class TsDeclaration
         }
 
         Name = name;
+        Space = space;
         _doc = doc is null ? null : TsComment.Doc(doc);
     }
 
     /// <summary>What the declaration binds.</summary>
-    private protected string Name { get; }
+    internal string Name { get; }
+
+    /// <summary>Where the name is bound, which is what decides whether a second one collides with it.</summary>
+    internal TsDeclarationSpace Space { get; }
 
     /// <summary>Appends the declaration, its doc comment first, ending without a newline.</summary>
     internal void Write(StringBuilder builder)

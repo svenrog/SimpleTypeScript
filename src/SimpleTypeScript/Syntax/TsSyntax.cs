@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Globalization;
 using System.Text;
 
@@ -30,54 +31,63 @@ internal static class TsSyntax
     /// <inheritdoc cref="LineSeparator" />
     internal const char ParagraphSeparator = (char)0x2029;
 
+    /// <summary>The surrogate range, which is asked about as a range rather than a member at a time.</summary>
+    private const char _firstSurrogate = (char)0xD800;
+
+    /// <inheritdoc cref="_firstSurrogate" />
+    private const char _lastSurrogate = (char)0xDFFF;
+
     /// <summary>Two spaces, which is what hand-written TypeScript is conventionally formatted at.</summary>
-    private const string _indentation = "  ";
+    private const int _indentation = 2;
+
+    /// <summary>
+    /// Every character that cannot be written as itself, apart from the surrogates. Derived from
+    /// <see cref="RequiresEscape"/> rather than listed beside it, so the set searched for and the set escaped
+    /// on arrival cannot come to disagree.
+    /// </summary>
+    private static readonly SearchValues<char> _escapable = SearchValues.Create(Escapable());
 
     /// <summary>Indents to <paramref name="depth"/>, for anything writing on a line of its own.</summary>
     internal static void AppendIndent(StringBuilder builder, int depth) =>
-        builder.Insert(builder.Length, _indentation, depth);
-
-    /// <summary><paramref name="value"/> as a double-quoted string literal.</summary>
-    internal static string String(string value)
-    {
-        var builder = new StringBuilder(value.Length + 2);
-        AppendString(builder, value);
-
-        return builder.ToString();
-    }
+        builder.Append(' ', depth * _indentation);
 
     /// <summary>Appends <paramref name="value"/> as a double-quoted string literal.</summary>
     internal static void AppendString(StringBuilder builder, string value)
     {
+        // Whether a surrogate needs escaping depends on the one beside it, so it cannot be searched for as
+        // part of a set: a set holding it would stop on every astral character to ask. A string carrying any
+        // surrogate is read character by character instead.
+        if (value.AsSpan().ContainsAnyInRange(_firstSurrogate, _lastSurrogate))
+        {
+            AppendCharacters(builder, value);
+            return;
+        }
+
         builder.Append('"');
 
-        for (var index = 0; index < value.Length; index++)
+        var remaining = value.AsSpan();
+        while (!remaining.IsEmpty)
         {
-            var character = value[index];
-            switch (character)
+            var next = remaining.IndexOfAny(_escapable);
+            if (next < 0)
             {
-                case '"': builder.Append("\\\""); break;
-                case '\\': builder.Append("\\\\"); break;
-                case '\b': builder.Append("\\b"); break;
-                case '\f': builder.Append("\\f"); break;
-                case '\n': builder.Append("\\n"); break;
-                case '\r': builder.Append("\\r"); break;
-                case '\t': builder.Append("\\t"); break;
-
-                default:
-                    if (char.IsControl(character)
-                        || character is LineSeparator or ParagraphSeparator
-                        || IsLoneSurrogate(value, index))
-                    {
-                        AppendEscape(builder, character);
-                    }
-                    else
-                    {
-                        builder.Append(character);
-                    }
-
-                    break;
+                builder.Append(remaining);
+                break;
             }
+
+            builder.Append(remaining[..next]);
+            remaining = remaining[next..];
+
+            // Escapes that follow one another are written without searching again: a search that lands on
+            // the character it started at costs its own setup to advance by one.
+            var run = 0;
+            while (run < remaining.Length && RequiresEscape(remaining[run]))
+            {
+                AppendEscape(builder, remaining[run]);
+                run++;
+            }
+
+            remaining = remaining[run..];
         }
 
         builder.Append('"');
@@ -121,8 +131,66 @@ internal static class TsSyntax
         return value.ToString("R", CultureInfo.InvariantCulture);
     }
 
-    private static void AppendEscape(StringBuilder builder, char character) =>
-        builder.Append("\\u").Append(((int)character).ToString("x4", CultureInfo.InvariantCulture));
+    /// <summary>
+    /// The whole string one character at a time, which is what a surrogate anywhere in it costs. Pairing is
+    /// the only question that cannot be answered about a character on its own.
+    /// </summary>
+    private static void AppendCharacters(StringBuilder builder, string value)
+    {
+        builder.Append('"');
+
+        for (var index = 0; index < value.Length; index++)
+        {
+            var character = value[index];
+            if (RequiresEscape(character) || IsLoneSurrogate(value, index))
+            {
+                AppendEscape(builder, character);
+            }
+            else
+            {
+                builder.Append(character);
+            }
+        }
+
+        builder.Append('"');
+    }
+
+    /// <summary>Whether the character has to be escaped whatever stands next to it.</summary>
+    private static bool RequiresEscape(char character) =>
+        character is '"' or '\\' or LineSeparator or ParagraphSeparator || char.IsControl(character);
+
+    private static char[] Escapable()
+    {
+        var characters = new List<char>();
+        for (var candidate = (int)char.MinValue; candidate <= char.MaxValue; candidate++)
+        {
+            if (RequiresEscape((char)candidate))
+            {
+                characters.Add((char)candidate);
+            }
+        }
+
+        return [.. characters];
+    }
+
+    /// <summary>The character escaped, in the shortest form it has.</summary>
+    private static void AppendEscape(StringBuilder builder, char character)
+    {
+        switch (character)
+        {
+            case '"': builder.Append("\\\""); break;
+            case '\\': builder.Append("\\\\"); break;
+            case '\b': builder.Append("\\b"); break;
+            case '\f': builder.Append("\\f"); break;
+            case '\n': builder.Append("\\n"); break;
+            case '\r': builder.Append("\\r"); break;
+            case '\t': builder.Append("\\t"); break;
+
+            default:
+                builder.Append("\\u").Append(((int)character).ToString("x4", CultureInfo.InvariantCulture));
+                break;
+        }
+    }
 
     private static bool IsLoneSurrogate(string value, int index)
     {

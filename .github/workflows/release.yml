@@ -19,9 +19,13 @@ jobs:
         with:
           fetch-depth: 0   # MinVer needs full history + tags
 
+      # Both, because the packages target both and the test project runs on each — without the 8.0 runtime
+      # here, half the matrix is built and never executed.
       - uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: |
+            8.0.x
+            10.0.x
 
       # ContinuousIntegrationBuild belongs here rather than on the pack below: it is a compile-time property
       # — deterministic source paths, which is what makes SourceLink resolve — so setting it on a pack that

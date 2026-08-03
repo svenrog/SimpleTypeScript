@@ -10,7 +10,7 @@ internal sealed class TsConst : TsDeclaration
     private readonly bool _asConst;
 
     private TsConst(string name, TsValue value, TsType? type, bool asConst, string? doc)
-        : base(name, "binding", doc)
+        : base(name, "binding", TsDeclarationSpace.Value, doc)
     {
         _value = value;
         _type = type;
@@ -40,7 +40,8 @@ internal sealed class TsConst : TsDeclaration
         builder.Append("export const ").Append(Name);
         if (_type is not null)
         {
-            builder.Append(": ").Append(_type.Render());
+            builder.Append(": ");
+            _type.Write(builder);
         }
 
         builder.Append(" = ");

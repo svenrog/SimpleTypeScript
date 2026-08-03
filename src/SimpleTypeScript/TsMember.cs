@@ -17,13 +17,17 @@ public sealed class TsMember
     private readonly string _name;
     private readonly TsType _type;
     private readonly bool _isReadOnly;
+    private readonly bool _isOptional;
     private readonly TsComment? _doc;
 
     /// <summary>
     /// A member of <paramref name="type"/>. <paramref name="isReadOnly"/> writes <c>readonly</c>, which is
-    /// what a shape the consumer only ever receives should say.
+    /// what a shape the consumer only ever receives should say; <paramref name="isOptional"/> writes
+    /// <c>?</c>, for a member the producer omits rather than sends empty — which is a different thing from
+    /// one it sends as <c>null</c>.
     /// </summary>
-    public TsMember(string name, TsType type, string? doc = null, bool isReadOnly = false)
+    public TsMember(
+        string name, TsType type, string? doc = null, bool isReadOnly = false, bool isOptional = false)
     {
         if (name.Length == 0)
         {
@@ -33,6 +37,7 @@ public sealed class TsMember
         _name = name;
         _type = type;
         _isReadOnly = isReadOnly;
+        _isOptional = isOptional;
         _doc = doc is null ? null : TsComment.Doc(doc);
     }
 
@@ -59,6 +64,13 @@ public sealed class TsMember
             TsSyntax.AppendString(builder, _name);
         }
 
-        builder.Append(": ").Append(_type.Render()).Append(";\n");
+        if (_isOptional)
+        {
+            builder.Append('?');
+        }
+
+        builder.Append(": ");
+        _type.Write(builder);
+        builder.Append(";\n");
     }
 }

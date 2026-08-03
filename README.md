@@ -62,7 +62,8 @@ dotnet test SimpleTypeScript.slnx
 dotnet run --project tests/SimpleTypeScript.Benchmarks -c Release
 ```
 
-`net10.0` throughout. Releases are tagged `v*`; each tag publishes both packages.
+Both packages target `net8.0` and `net10.0`, and the tests run on each. Releases are tagged `v*`; each tag
+publishes both packages.
 
 ## License
 

@@ -1,4 +1,5 @@
 using SimpleTypeScript.Syntax;
+using System.Text;
 
 namespace SimpleTypeScript.Types;
 
@@ -8,5 +9,5 @@ namespace SimpleTypeScript.Types;
 /// </summary>
 internal sealed class TsStringLiteralType(string value) : TsType
 {
-    public override string Render() => TsSyntax.String(value);
+    internal override void Write(StringBuilder builder) => TsSyntax.AppendString(builder, value);
 }
