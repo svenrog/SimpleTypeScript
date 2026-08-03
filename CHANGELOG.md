@@ -10,7 +10,7 @@ this tag gives it a baseline to compare against. What that made worth finishing 
 
 **Breaking against 0.5.0**, and deliberately, since this is where that stops being free. Two signatures were
 accreting parameters — a new option meant another argument and another break, which is the shape a settled
-API cannot have:
+API cannot have — and one default was answering a question nobody had asked it:
 
 - **`TsMember`** takes the name and type it *is*; how it is written is set on it.
   `new TsMember("id", TsType.String) { IsReadOnly = true, Doc = "The identity." }`. Two trailing booleans
@@ -36,6 +36,11 @@ producer configured that way for a shape to describe.
 
 The emitter's AOT compatibility is published rather than asserted: `tests/SimpleTypeScript.AotConsumer` is
 compiled native on every build. `EnablePackageValidation` is on, and gains a baseline once 1.0.0 is tagged.
+
+**Neither package declares an attribute**, and a test holds both to it. Everything the walk reads —
+`System.Text.Json`'s attributes, the compiler's own `required`, DataAnnotations' `[Required]` — is in the
+shared framework, so the assembly holding your contracts is generated from without referencing either
+package. That was true already; from 1.0.0 it is a guarantee rather than a habit.
 
 Fixes for output that was wrong without saying so. Each of these could produce a module that compiled, so a
 consumer checking against it saw no sign.
@@ -78,7 +83,7 @@ consumer checking against it saw no sign.
   under `System.` or `Microsoft.` is now refused instead of walked: nothing there is a payload, so what came
   out described a framework implementation. Carrying one on the wire is a `Mappings` entry, which is where
   the caller says what it is carried as.
-- `TsMember` takes `isOptional`, which is what the above needed.
+- `TsMember.IsOptional`, which is what the above needed to say.
 
 Nothing else generates differently; what changed is what it costs.
 
