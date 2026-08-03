@@ -280,6 +280,7 @@ public sealed class TypeWalkerTests
         Assert.Contains("readonly keyword: string;", rendered, StringComparison.Ordinal);
     }
 
+#if NET10_0_OR_GREATER
     /// <summary>
     /// Two of the conditions are about a direction rather than a value, and they point opposite ways: one
     /// is never written and so is not in the payload at all, the other is ignored only on the way in and is
@@ -293,6 +294,7 @@ public sealed class TypeWalkerTests
         Assert.DoesNotContain("neverWritten", rendered, StringComparison.Ordinal);
         Assert.Contains("readonly writtenOnly: string;", rendered, StringComparison.Ordinal);
     }
+#endif
 
     /// <summary>
     /// As everything's default it describes a producer that writes no member at all, which is why the
@@ -515,6 +517,7 @@ public sealed class TypeWalkerTests
         public IReadOnlyList<string?>[] Nested { get; init; } = [];
     }
 
+#if NET10_0_OR_GREATER
     private sealed class Directional
     {
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWriting)]
@@ -523,6 +526,7 @@ public sealed class TypeWalkerTests
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenReading)]
         public string WrittenOnly { get; init; } = string.Empty;
     }
+#endif
 
     private sealed class Tallies
     {

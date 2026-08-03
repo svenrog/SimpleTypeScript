@@ -4,6 +4,15 @@ All notable changes to this project are documented here.
 
 ## Unreleased
 
+Both packages now target **`net8.0` and `net10.0`**, and the test suite runs on each. A build-time generator
+is consumed by whatever the team's application targets, and the newest framework is not usually it. The only
+difference between them is that the two ignore conditions naming a direction — `WhenWriting` and
+`WhenReading` — arrived in .NET 10 along with the serializer that honours them, so on `net8.0` there is no
+producer configured that way for a shape to describe.
+
+The emitter's AOT compatibility is published rather than asserted: `tests/SimpleTypeScript.AotConsumer` is
+compiled native on every build. `EnablePackageValidation` is on, and gains a baseline once 1.0.0 is tagged.
+
 Fixes for output that was wrong without saying so. Each of these could produce a module that compiled, so a
 consumer checking against it saw no sign.
 

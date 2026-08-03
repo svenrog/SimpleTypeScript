@@ -215,8 +215,12 @@ Named rather than discovered, because each is a shape that would otherwise gener
 dotnet add package SimpleTypeScript.TypeGeneration
 ```
 
-`net10.0`. This half reflects, which is why it is a package of its own: the emitter reflects over nothing,
-and a consumer publishing NativeAOT keeps that by taking only the emitter.
+`net8.0` and `net10.0`. This half reflects, which is why it is a package of its own: the emitter reflects
+over nothing, and a consumer publishing NativeAOT keeps that by taking only the emitter.
+
+The two ignore conditions naming a direction — `WhenWriting` and `WhenReading` — arrived in .NET 10, and so
+did the serializer that honours them, so on `net8.0` there is no producer configured that way for a shape to
+describe. Nothing else differs between the two.
 
 ## License
 

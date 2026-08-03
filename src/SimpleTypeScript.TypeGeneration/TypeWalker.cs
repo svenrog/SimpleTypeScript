@@ -280,11 +280,24 @@ public sealed class TypeWalker
 
     /// <summary>
     /// Whether the producer never writes the member at all, which is a member the payload does not have.
-    /// <see cref="JsonIgnoreCondition.WhenReading"/> is the other way round — ignored on the way in and
-    /// written on the way out — so it stays.
+    /// <c>WhenReading</c> is the other way round — ignored on the way in and written on the way out — so it
+    /// stays.
     /// </summary>
-    private bool IsUnwritten(PropertyInfo property) =>
-        Condition(property) is JsonIgnoreCondition.Always or JsonIgnoreCondition.WhenWriting;
+    private bool IsUnwritten(PropertyInfo property)
+    {
+        var condition = Condition(property);
+
+#if NET10_0_OR_GREATER
+        // The two conditions naming a direction arrived in .NET 10, and so did the serializer that honours
+        // them: before it, a producer has no way to be configured this way for the walk to describe.
+        if (condition is JsonIgnoreCondition.WhenWriting)
+        {
+            return true;
+        }
+#endif
+
+        return condition is JsonIgnoreCondition.Always;
+    }
 
     /// <summary>
     /// Whether the member is the bag the producer flattens rather than a member of its own. The serializer
