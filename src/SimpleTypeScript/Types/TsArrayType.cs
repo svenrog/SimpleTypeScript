@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace SimpleTypeScript.Types;
 
 /// <summary>
@@ -6,6 +8,19 @@ namespace SimpleTypeScript.Types;
 /// </summary>
 internal sealed class TsArrayType(TsType item) : TsType
 {
-    public override string Render() =>
-        item.RequiresParentheses ? $"({item.Render()})[]" : $"{item.Render()}[]";
+    internal override void Write(StringBuilder builder)
+    {
+        if (item.RequiresParentheses)
+        {
+            builder.Append('(');
+            item.Write(builder);
+            builder.Append(')');
+        }
+        else
+        {
+            item.Write(builder);
+        }
+
+        builder.Append("[]");
+    }
 }

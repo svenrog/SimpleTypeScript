@@ -12,26 +12,38 @@ namespace SimpleTypeScript;
 public sealed class TsModule
 {
     private readonly List<TsDeclaration> _declarations = [];
+    private readonly HashSet<(TsDeclarationSpace Space, string Name)> _bound = [];
 
     /// <summary>Adds an exported <c>const</c>. See <see cref="TsConst.Create"/> for the arguments.</summary>
     public TsModule Const(
-        string name, TsValue value, TsType? type = null, bool asConst = false, string? doc = null)
-    {
-        _declarations.Add(TsConst.Create(name, value, type, asConst, doc));
-        return this;
-    }
+        string name, TsValue value, TsType? type = null, bool asConst = false, string? doc = null) =>
+        Add(TsConst.Create(name, value, type, asConst, doc));
 
     /// <summary>Adds an exported <c>interface</c>, its members in the order given.</summary>
-    public TsModule Interface(string name, IEnumerable<TsMember> members, string? doc = null)
-    {
-        _declarations.Add(TsInterface.Create(name, members, doc));
-        return this;
-    }
+    public TsModule Interface(string name, IEnumerable<TsMember> members, string? doc = null) =>
+        Add(TsInterface.Create(name, members, doc));
 
     /// <summary>Adds an exported <c>type</c> alias.</summary>
-    public TsModule TypeAlias(string name, TsType type, string? doc = null)
+    public TsModule TypeAlias(string name, TsType type, string? doc = null) =>
+        Add(TsTypeAlias.Create(name, type, doc));
+
+    /// <summary>
+    /// Adds the declaration, refusing a name already bound in the same space. A module declaring one name
+    /// twice compiles as whichever the tooling resolved, so the shape a consumer checks against is the one
+    /// nobody chose. The two spaces are separate — a <c>const</c> and a type of one name is a pair a
+    /// generated enum deliberately writes.
+    /// </summary>
+    private TsModule Add(TsDeclaration declaration)
     {
-        _declarations.Add(TsTypeAlias.Create(name, type, doc));
+        if (!_bound.Add((declaration.Space, declaration.Name)))
+        {
+            var what = declaration.Space == TsDeclarationSpace.Value ? "binding" : "type";
+
+            throw new TypeScriptException($"the module already declares a {what} called '{declaration.Name}'");
+        }
+
+        _declarations.Add(declaration);
+
         return this;
     }
 

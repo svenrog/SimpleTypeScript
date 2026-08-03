@@ -62,9 +62,11 @@ export type OrderStatus = "Open" | "Shipped";
 ```
 
 **It reads the shape that is serialized, not only the shape that is declared.** `[JsonIgnore]` drops a
-member, `[JsonPropertyName]` renames it, and everything else takes the naming policy — camel case by default,
-matching what a JSON API is usually configured with. A generator that reads the C# alone spells every member
-wrong the moment a policy is set, and nothing says so until a field is `undefined`.
+member — or makes it optional, where its condition says the producer merely omits it sometimes —
+`[JsonPropertyName]` renames it, `[JsonExtensionData]` is not a member at all, and everything else takes the
+naming policy: camel case by default, matching what a JSON API is usually configured with. A generator that
+reads the C# alone spells every member wrong the moment a policy is set, and nothing says so until a field is
+`undefined`.
 
 ## What it decides, and how to overrule it
 
@@ -72,9 +74,14 @@ wrong the moment a policy is set, and nothing says so until a field is `undefine
 | --- | --- | --- |
 | A member name | camel case | `MemberNamingPolicy`, or `null` for the C# name |
 | A nullable member | `T \| null`, for a nullable reference and a `Nullable<T>` alike | — |
+| A nullable *element* | the same, read per position: `string?[]` is `(string \| null)[]` and `string[]?` is `string[] \| null` | — |
+| A member the producer omits | `?`, and no `\| null` — a key that is absent never arrives holding one | `DefaultIgnoreCondition`, or the `[JsonIgnore]` condition on the member |
+| A member the API requires | never optional; `required`, `[JsonRequired]` and `[Required]` all say so | — |
 | An enum | a union of the member names, which is what `JsonStringEnumConverter` writes | `EnumStyle` (below) and `EnumNamingPolicy` where a converter renames the members |
 | A sequence | `T[]`; a dictionary is `Record<string, V>`, since a JSON key is a string whatever the C# key is | — |
-| A BCL type | `TypeMappings.Default`: dates, `Guid`, `Uri`, every numeric, `byte[]` as its base64 string, `JsonElement` as `unknown` | `Mappings`, merged over the defaults |
+| A BCL type | `TypeMappings.Default`: dates, `Guid`, `Uri`, every numeric, `byte[]` as its base64 string, `JsonElement` and the `JsonNode` family as `unknown` | `Mappings`, merged over the defaults |
+| Any other platform type | refused: nothing under `System.` or `Microsoft.` is a payload, so writing one would describe an implementation | `Mappings` |
+| Two types of one name | refused: the output has no namespaces to tell them apart with | `Name` |
 | Anything else | refused rather than written as `any` | `Mappings` |
 | A member's mutability | `readonly`, since a consumer usually receives these | `ReadOnlyMembers` |
 | A declaration's name | the C# type name | `Name` |
@@ -84,6 +91,26 @@ A mapped type is a **leaf**: nothing behind it is reached, which makes mapping t
 dragging its own graph into the output, and the way to say a type is carried as something other than its
 shape. Declarations are emitted in name order and members in declaration order, so the file is byte-stable
 across runs and machines.
+
+### Absent and null are two questions
+
+`?` says the key may not be there; `| null` says what may be in it. They are independent, and which you get
+follows the producer rather than TypeScript convention — a `JSON.stringify` payload omits `undefined`, but
+`System.Text.Json` writes `"note":null` unless it is configured not to.
+
+```csharp
+var options = new TypeWalkerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
+```
+
+| `string? Note` on a producer that… | |
+| --- | --- |
+| writes every key (the serializer's default) | `readonly note: string \| null;` |
+| omits nulls (`WhenWritingNull`) | `readonly note?: string;` |
+| omits defaults (`WhenWritingDefault`) | `readonly note?: string;`, and every value-type member too |
+| …but marks it `required` / `[JsonRequired]` / `[Required]` | `readonly note: string \| null;` — present, and still nullable |
+
+There is no `| undefined`: JSON has no such literal, so a parsed payload cannot hold one. `undefined` only
+ever arrives as a missing key, which is what `?` already says.
 
 ## Enums
 

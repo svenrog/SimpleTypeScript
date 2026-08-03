@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace SimpleTypeScript.TypeGeneration;
 
@@ -47,5 +48,9 @@ public static class TypeMappings
         // before reading it, which is the same thing the C# says.
         [typeof(JsonElement)] = TsType.Of("unknown"),
         [typeof(JsonDocument)] = TsType.Of("unknown"),
+        [typeof(JsonNode)] = TsType.Of("unknown"),
+        [typeof(JsonObject)] = TsType.Of("unknown"),
+        [typeof(JsonArray)] = TsType.Of("unknown"),
+        [typeof(JsonValue)] = TsType.Of("unknown"),
     };
 }

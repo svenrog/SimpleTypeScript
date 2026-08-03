@@ -1,4 +1,5 @@
 using SimpleTypeScript.Syntax;
+using System.Buffers;
 using System.Text;
 
 namespace SimpleTypeScript;
@@ -20,6 +21,10 @@ public sealed class TsComment
     /// <summary>Everything ECMAScript ends a line on. CRLF is handled by dropping empties after the split.</summary>
     private static readonly string[] _terminators =
         ["\r\n", "\n", "\r", TsSyntax.LineSeparator.ToString(), TsSyntax.ParagraphSeparator.ToString()];
+
+    /// <summary>The same set, for asking whether there is anything to split on at all.</summary>
+    private static readonly SearchValues<char> _terminatorCharacters =
+        SearchValues.Create(['\r', '\n', TsSyntax.LineSeparator, TsSyntax.ParagraphSeparator]);
 
     private readonly IReadOnlyList<string> _lines;
     private readonly bool _isDoc;
@@ -97,17 +102,19 @@ public sealed class TsComment
     /// where that shows up.
     /// </para>
     /// </summary>
-    private static IEnumerable<string> Split(string text, bool closeable)
+    private static string[] Split(string text, bool closeable)
     {
         if (text.Length == 0)
         {
             return [];
         }
 
-        var lines = text.Split(_terminators, StringSplitOptions.None);
+        // The sequence being broken cannot straddle a line terminator, so neutralising the whole text and
+        // neutralising each line of it are the same thing.
+        var neutralised = closeable ? text.Replace("*/", "*\\/", StringComparison.Ordinal) : text;
 
-        return closeable
-            ? lines.Select(line => line.Replace("*/", "*\\/", StringComparison.Ordinal))
-            : lines;
+        return neutralised.AsSpan().ContainsAny(_terminatorCharacters)
+            ? neutralised.Split(_terminators, StringSplitOptions.None)
+            : [neutralised];
     }
 }

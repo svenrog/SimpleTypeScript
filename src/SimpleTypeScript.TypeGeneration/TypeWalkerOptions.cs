@@ -1,5 +1,6 @@
 using SimpleTypeScript.TypeGeneration.Documentation;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SimpleTypeScript.TypeGeneration;
 
@@ -39,6 +40,23 @@ public sealed class TypeWalkerOptions
     /// a consumer <em>receives</em>, and a payload it also builds is the smaller half of the work.
     /// </summary>
     public bool ReadOnlyMembers { get; init; } = true;
+
+    /// <summary>
+    /// When the producer leaves a member out of the payload altogether, mirroring the option of the same
+    /// name on <c>JsonSerializerOptions</c>. <see cref="JsonIgnoreCondition.Never"/> by default, which is
+    /// the serializer's own: every member is written, and one that is null is written as <c>null</c>.
+    /// <para>
+    /// This is the <em>presence</em> of a key, which TypeScript says with <c>?</c>, and it is a separate
+    /// question from what may be in it. A producer configured to omit nulls sends no key at all, so its
+    /// members are optional and never <c>null</c> where they do appear; left at the default the key is
+    /// always there, and <c>T | null</c> is what can arrive in it.
+    /// </para>
+    /// <para>
+    /// A member carrying <c>[JsonIgnore]</c> answers for itself, and one the API requires — <c>required</c>,
+    /// <c>[JsonRequired]</c> or <c>[Required]</c> — is never optional whatever this says.
+    /// </para>
+    /// </summary>
+    public JsonIgnoreCondition DefaultIgnoreCondition { get; init; } = JsonIgnoreCondition.Never;
 
     /// <summary>
     /// Types the walk stops at, merged over <see cref="TypeMappings.Default"/> — a type named here wins, so

@@ -60,6 +60,36 @@ public sealed class ModulePipelineTests : IDisposable
         Assert.False(File.Exists(leftover));
     }
 
+    /// <summary>
+    /// The output directory is the consumer's own source tree. A module that owns its directory has it
+    /// emptied before the write, so one naming a file directly under the root would take the root — every
+    /// hand-written file beside it included, and the write still reports success.
+    /// </summary>
+    [Fact]
+    public void Refuses_to_own_the_output_directory_itself()
+    {
+        var keep = Path.Combine(_output, "hand-written.ts");
+        File.WriteAllText(keep, "export const keep = 1;");
+
+        Assert.Throws<GenerationException>(() => Writer(GeneratedHeader.None).Write(new RootOwningModule()));
+        Assert.True(File.Exists(keep));
+    }
+
+    /// <summary>A module names a path under the root, and one that climbs out of it is not one.</summary>
+    [Fact]
+    public void Refuses_a_file_name_that_resolves_outside_the_output_directory()
+    {
+        // A root inside the fixture's own directory, so where a climb would land belongs to this test rather
+        // than to whatever else shares the one above it.
+        var root = Directory.CreateDirectory(Path.Combine(_output, "root")).FullName;
+
+        var refusal = Assert.Throws<GenerationException>(
+            () => new ModuleWriter(root, GeneratedHeader.None).Write(new EscapingModule()));
+
+        Assert.Contains("outside the output directory", refusal.Message, StringComparison.Ordinal);
+        Assert.False(File.Exists(Path.Combine(_output, "climbed-out.ts")));
+    }
+
     [Fact]
     public void Opens_a_module_with_the_banner_the_header_writes()
     {
@@ -140,6 +170,36 @@ public sealed class ModulePipelineTests : IDisposable
         public string Source => "a fixture";
 
         public bool OwnsDirectory => true;
+
+        public string Build(TsModule module)
+        {
+            module.Const("X", TsValue.String("v"));
+
+            return "1 thing";
+        }
+    }
+
+    private sealed class RootOwningModule : IGeneratedModule
+    {
+        public string FileName => "index.generated.ts";
+
+        public string Source => "a fixture";
+
+        public bool OwnsDirectory => true;
+
+        public string Build(TsModule module)
+        {
+            module.Const("X", TsValue.String("v"));
+
+            return "1 thing";
+        }
+    }
+
+    private sealed class EscapingModule : IGeneratedModule
+    {
+        public string FileName => "../climbed-out.ts";
+
+        public string Source => "a fixture";
 
         public string Build(TsModule module)
         {

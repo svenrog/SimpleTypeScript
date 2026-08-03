@@ -22,6 +22,8 @@ public sealed class TypeScriptEmitterTests
     [InlineData("back\\slash", "\"back\\\\slash\"")]
     [InlineData("line\nbreak", "\"line\\nbreak\"")]
     [InlineData("tab\there", "\"tab\\there\"")]
+    [InlineData("del\u007fete", "\"del\\u007fete\"")]
+    [InlineData("next\u0085line", "\"next\\u0085line\"")]
     public void Escapes_what_a_string_literal_cannot_carry(string value, string expected) =>
         Assert.Contains(expected, Render(TsValue.String(value)), StringComparison.Ordinal);
 
@@ -52,6 +54,20 @@ public sealed class TypeScriptEmitterTests
     {
         Assert.Contains("\\ud83d\"", Render(TsValue.String("\ud83d")), StringComparison.Ordinal);
         Assert.Contains("\"\ud83d\ude80\"", Render(TsValue.String("\ud83d\ude80")), StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Pairing is the one question that cannot be answered about a character on its own, so a string holding
+    /// a surrogate is escaped by a different route than one that is not. The two have to agree about
+    /// everything else in it.
+    /// </summary>
+    [Fact]
+    public void Escapes_the_same_beside_an_astral_character()
+    {
+        Assert.Contains(
+            "\"say \\\"hi\\\"\\n\ud83d\ude80\"",
+            Render(TsValue.String("say \"hi\"\n\ud83d\ude80")),
+            StringComparison.Ordinal);
     }
 
     [Fact]
@@ -146,6 +162,45 @@ public sealed class TypeScriptEmitterTests
 
         var header = new TsModule().Const("X", TsValue.String("v")).Render(TsComment.Lines(["a */ b"]));
         Assert.Contains("// a */ b", header, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// A module declaring one name twice compiles as whichever declaration the tooling resolved, so the
+    /// shape a consumer is checked against is the one nobody chose. TypeScript's two namespaces are
+    /// separate, though — a <c>const</c> and a type of one name is the pair an enum deliberately writes.
+    /// </summary>
+    [Fact]
+    public void Refuses_one_name_declared_twice_in_the_space_that_holds_it()
+    {
+        Assert.Throws<TypeScriptException>(() => new TsModule()
+            .TypeAlias("Status", TsType.String)
+            .Interface("Status", [new TsMember("id", TsType.String)]));
+
+        Assert.Throws<TypeScriptException>(() => new TsModule()
+            .Const("X", TsValue.Null)
+            .Const("X", TsValue.Null));
+
+        var pair = new TsModule()
+            .Const("Status", TsValue.Object(new Dictionary<string, string> { ["Open"] = "Open" }), asConst: true)
+            .TypeAlias("Status", TsType.ValuesOf("Status"))
+            .Render(TsComment.Empty());
+
+        Assert.Contains("export const Status = {", pair, StringComparison.Ordinal);
+        Assert.Contains("export type Status = typeof Status[keyof typeof Status];", pair, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// A member the producer omits is a different thing from one it sends as <c>null</c>: the first is
+    /// absent from the payload, and a consumer that reads it without checking gets <c>undefined</c>.
+    /// </summary>
+    [Fact]
+    public void Writes_an_optional_member_as_one()
+    {
+        var rendered = new TsModule()
+            .Interface("Shape", [new TsMember("note", TsType.String, isReadOnly: true, isOptional: true)])
+            .Render(TsComment.Empty());
+
+        Assert.Contains("  readonly note?: string;\n", rendered, StringComparison.Ordinal);
     }
 
     [Fact]

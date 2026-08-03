@@ -12,7 +12,7 @@ internal sealed class TsInterface : TsDeclaration
     private readonly IReadOnlyList<TsMember> _members;
 
     private TsInterface(string name, IReadOnlyList<TsMember> members, string? doc)
-        : base(name, "interface", doc)
+        : base(name, "interface", TsDeclarationSpace.Type, doc)
     {
         // An interface declaring nothing is assignable from anything, so a walk that reached no members
         // would generate a type that type-checks against every mistake it was supposed to catch.
@@ -21,12 +21,13 @@ internal sealed class TsInterface : TsDeclaration
             throw new TypeScriptException($"interface {name} declares no members");
         }
 
-        var duplicate = members
-            .GroupBy(member => member.Name, StringComparer.Ordinal)
-            .FirstOrDefault(group => group.Count() > 1);
-        if (duplicate is not null)
+        var declared = new HashSet<string>(members.Count, StringComparer.Ordinal);
+        foreach (var member in members)
         {
-            throw new TypeScriptException($"interface {name} declares '{duplicate.Key}' more than once");
+            if (!declared.Add(member.Name))
+            {
+                throw new TypeScriptException($"interface {name} declares '{member.Name}' more than once");
+            }
         }
 
         _members = members;

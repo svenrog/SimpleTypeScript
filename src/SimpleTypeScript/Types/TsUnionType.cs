@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace SimpleTypeScript.Types;
 
 /// <summary>
@@ -9,6 +11,16 @@ internal sealed class TsUnionType(IReadOnlyList<TsType> members) : TsType
 {
     internal override bool RequiresParentheses => members.Count > 1;
 
-    public override string Render() =>
-        string.Join(" | ", members.Select(member => member.Render()));
+    internal override void Write(StringBuilder builder)
+    {
+        for (var index = 0; index < members.Count; index++)
+        {
+            if (index > 0)
+            {
+                builder.Append(" | ");
+            }
+
+            members[index].Write(builder);
+        }
+    }
 }

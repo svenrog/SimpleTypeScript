@@ -1,5 +1,7 @@
 using SimpleTypeScript.TypeGeneration;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Xunit;
 
@@ -172,6 +174,209 @@ public sealed class TypeWalkerTests
         Assert.Contains(nameof(TypeWalkerOptions.Mappings), refusal.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// Two types under one name would leave one declaration with both referring to it, so every member of
+    /// one would be checked against the shape of the other — and the module still compiles, so nothing says
+    /// so. Namespaces keep them apart in C# and there are no namespaces in the output.
+    /// </summary>
+    [Fact]
+    public void Refuses_two_types_that_would_be_written_as_one_declaration()
+    {
+        var refusal = Assert.Throws<GenerationException>(
+            () => Render(null, typeof(Line), typeof(Elsewhere.Line)));
+
+        Assert.Contains(nameof(TypeWalkerOptions.Name), refusal.Message, StringComparison.Ordinal);
+
+        // Told apart, both arrive.
+        var rendered = Render(
+            new TypeWalkerOptions { Name = type => $"{type.Namespace?.Split('.')[^1]}{type.Name}" },
+            typeof(Line),
+            typeof(Elsewhere.Line));
+
+        Assert.Contains("export interface TestsLine {", rendered, StringComparison.Ordinal);
+        Assert.Contains("export interface ElsewhereLine {", rendered, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// <c>[JsonIgnore]</c> is a condition, not a flag. Unconditional by default, but the two writing
+    /// conditions mean the member is sometimes omitted — present and optional — and
+    /// <see cref="JsonIgnoreCondition.Never"/> means the opposite of the attribute's own name.
+    /// </summary>
+    [Fact]
+    public void Reads_what_the_ignore_condition_actually_says()
+    {
+        var rendered = Render(null, typeof(Conditional));
+
+        Assert.DoesNotContain("always", rendered, StringComparison.Ordinal);
+        Assert.Contains("readonly whenNull?: string;", rendered, StringComparison.Ordinal);
+        Assert.Contains("readonly whenDefault?: number;", rendered, StringComparison.Ordinal);
+        Assert.Contains("readonly never: string;", rendered, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Presence and value are separate questions. A producer left at the serializer's default writes every
+    /// key and writes a null one as <c>null</c>, so the key is always there and <c>T | null</c> is what can
+    /// arrive in it — <c>?</c> would claim a key that can be missing, which this producer never sends.
+    /// </summary>
+    [Fact]
+    public void Writes_a_key_that_is_always_present_as_one()
+    {
+        var rendered = Render(null, typeof(Omissions));
+
+        Assert.Contains("readonly note: string | null;", rendered, StringComparison.Ordinal);
+        Assert.Contains("readonly score: number | null;", rendered, StringComparison.Ordinal);
+        Assert.Contains("readonly count: number;", rendered, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// A producer configured to omit nulls sends no key at all, so the member is optional — and never
+    /// <c>null</c> where it does appear, since the condition that takes the key out is the same one that
+    /// keeps a null from arriving in it.
+    /// </summary>
+    [Fact]
+    public void Writes_a_key_the_producer_omits_as_optional_and_never_null()
+    {
+        var rendered = Render(
+            new TypeWalkerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull },
+            typeof(Omissions));
+
+        Assert.Contains("readonly note?: string;", rendered, StringComparison.Ordinal);
+        Assert.Contains("readonly score?: number;", rendered, StringComparison.Ordinal);
+
+        // Not nullable, so this condition never leaves it out.
+        Assert.Contains("readonly count: number;", rendered, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Anything can equal its own default, so a value type goes too — except a reference the type says is
+    /// never null, whose default is the null it cannot be.
+    /// </summary>
+    [Fact]
+    public void Writes_every_key_a_producer_omitting_defaults_can_leave_out()
+    {
+        var rendered = Render(
+            new TypeWalkerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault },
+            typeof(Omissions));
+
+        Assert.Contains("readonly note?: string;", rendered, StringComparison.Ordinal);
+        Assert.Contains("readonly count?: number;", rendered, StringComparison.Ordinal);
+        Assert.Contains("readonly reference: string;", rendered, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// A member the API refuses a payload without is never optional, whatever the producer is configured to
+    /// omit. It says nothing about the value: <c>[Required]</c> is validation, which runs on the way in and
+    /// leaves what is written alone — so a member the C# declares nullable stays <c>T | null</c>.
+    /// </summary>
+    [Fact]
+    public void Keeps_a_member_the_api_requires_present_whatever_the_producer_omits()
+    {
+        var rendered = Render(
+            new TypeWalkerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault },
+            typeof(Omissions));
+
+        Assert.Contains("readonly annotated: string | null;", rendered, StringComparison.Ordinal);
+        Assert.Contains("readonly demanded: string;", rendered, StringComparison.Ordinal);
+        Assert.Contains("readonly keyword: string;", rendered, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Two of the conditions are about a direction rather than a value, and they point opposite ways: one
+    /// is never written and so is not in the payload at all, the other is ignored only on the way in and is
+    /// written like any other member. A shape describes what the producer sends.
+    /// </summary>
+    [Fact]
+    public void Reads_the_two_conditions_that_name_a_direction()
+    {
+        var rendered = Render(null, typeof(Directional));
+
+        Assert.DoesNotContain("neverWritten", rendered, StringComparison.Ordinal);
+        Assert.Contains("readonly writtenOnly: string;", rendered, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// As everything's default it describes a producer that writes no member at all, which is why the
+    /// serializer refuses the same value on its own options.
+    /// </summary>
+    [Fact]
+    public void Refuses_a_default_condition_that_would_leave_nothing_to_write()
+    {
+        Assert.Throws<GenerationException>(
+            () => new TypeWalker(new TypeWalkerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.Always }));
+    }
+
+    /// <summary>
+    /// Extension data is not a member: the serializer writes the dictionary's entries as members of the
+    /// object holding it, so a member named after the dictionary describes a key nothing ever sends.
+    /// </summary>
+    [Fact]
+    public void Leaves_out_the_dictionary_a_producer_flattens_into_the_object()
+    {
+        var rendered = Render(null, typeof(Conditional));
+
+        Assert.DoesNotContain("extra", rendered, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// A nullable value type is the thing it wraps and a <c>null</c>, wherever it appears. Read off a
+    /// property alone, the same type inside a list is a shape the walk has no answer for at all.
+    /// </summary>
+    [Fact]
+    public void Says_where_a_value_may_be_absent_inside_a_collection_too()
+    {
+        var rendered = Render(null, typeof(Tallies));
+
+        Assert.Contains("readonly scores: (number | null)[];", rendered, StringComparison.Ordinal);
+        Assert.Contains("readonly byRegion: Record<string, number | null>;", rendered, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Whether null belongs is a property of the position, not of the type: the same <c>string</c> is
+    /// nullable inside one list and not inside the next. Read off the member alone, everything a collection
+    /// holds comes out non-null — which is the direction that costs a consumer a check it needed.
+    /// </summary>
+    [Fact]
+    public void Says_where_a_value_may_be_absent_inside_what_a_collection_holds()
+    {
+        var rendered = Render(null, typeof(Notes));
+
+        Assert.Contains("readonly loose: (string | null)[];", rendered, StringComparison.Ordinal);
+        Assert.Contains("readonly listed: (string | null)[];", rendered, StringComparison.Ordinal);
+        Assert.Contains("readonly keyed: Record<string, string | null>;", rendered, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// The other direction of the same read: an element the C# says is never null must not gain a null, and
+    /// an array that may itself be absent is a different thing from one holding absences.
+    /// </summary>
+    [Fact]
+    public void Leaves_what_a_collection_holds_alone_where_the_C_sharp_does()
+    {
+        var rendered = Render(null, typeof(Notes));
+
+        Assert.Contains("readonly firm: string[];", rendered, StringComparison.Ordinal);
+        Assert.Contains("readonly absentList: string[] | null;", rendered, StringComparison.Ordinal);
+        Assert.Contains("readonly nested: (string | null)[][];", rendered, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Nothing the platform declares is a payload, so walking one describes an implementation — an interface
+    /// of whatever properties a framework type happens to expose, which compiles and checks nothing. The
+    /// JSON node types are the ones that turn up on a wire, and they are carried as an unnarrowed value.
+    /// </summary>
+    [Fact]
+    public void Refuses_a_platform_type_rather_than_describing_its_implementation()
+    {
+        var refusal = Assert.Throws<GenerationException>(() => Render(null, typeof(Opaque)));
+
+        Assert.Contains(nameof(TypeWalkerOptions.Mappings), refusal.Message, StringComparison.Ordinal);
+
+        Assert.Contains(
+            "readonly payload: unknown | null;",
+            Render(null, typeof(Envelope)),
+            StringComparison.Ordinal);
+    }
+
     [Fact]
     public void Declares_in_name_order_whatever_order_the_walk_reached_them_in()
     {
@@ -256,5 +461,83 @@ public sealed class TypeWalkerTests
     private sealed class Untyped
     {
         public object Payload { get; init; } = new();
+    }
+
+    private sealed class Conditional
+    {
+        [JsonIgnore]
+        public string Always { get; init; } = string.Empty;
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? WhenNull { get; init; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public int WhenDefault { get; init; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+        public string Never { get; init; } = string.Empty;
+
+        [JsonExtensionData]
+        public Dictionary<string, object> Extra { get; init; } = [];
+    }
+
+    private sealed class Omissions
+    {
+        public string Reference { get; init; } = string.Empty;
+
+        public string? Note { get; init; }
+
+        public int? Score { get; init; }
+
+        public int Count { get; init; }
+
+        [Required]
+        public string? Annotated { get; init; }
+
+        [JsonRequired]
+        public string Demanded { get; init; } = string.Empty;
+
+        public required string Keyword { get; init; }
+    }
+
+    private sealed class Notes
+    {
+        public string?[] Loose { get; init; } = [];
+
+        public IReadOnlyList<string?> Listed { get; init; } = [];
+
+        public IReadOnlyDictionary<string, string?> Keyed { get; init; } = new Dictionary<string, string?>();
+
+        public string[] Firm { get; init; } = [];
+
+        public string[]? AbsentList { get; init; }
+
+        public IReadOnlyList<string?>[] Nested { get; init; } = [];
+    }
+
+    private sealed class Directional
+    {
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWriting)]
+        public string NeverWritten { get; init; } = string.Empty;
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenReading)]
+        public string WrittenOnly { get; init; } = string.Empty;
+    }
+
+    private sealed class Tallies
+    {
+        public IReadOnlyList<int?> Scores { get; init; } = [];
+
+        public IReadOnlyDictionary<string, int?> ByRegion { get; init; } = new Dictionary<string, int?>();
+    }
+
+    private sealed class Opaque
+    {
+        public Version Assembly { get; init; } = new();
+    }
+
+    private sealed class Envelope
+    {
+        public JsonNode? Payload { get; init; }
     }
 }

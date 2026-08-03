@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace SimpleTypeScript.Types;
 
 /// <summary>
@@ -11,5 +13,6 @@ namespace SimpleTypeScript.Types;
 /// </summary>
 internal sealed class TsValuesOfType(string name) : TsType
 {
-    public override string Render() => $"typeof {name}[keyof typeof {name}]";
+    internal override void Write(StringBuilder builder) =>
+        builder.Append("typeof ").Append(name).Append("[keyof typeof ").Append(name).Append(']');
 }

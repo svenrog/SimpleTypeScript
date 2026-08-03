@@ -11,7 +11,7 @@ internal sealed class TsTypeAlias : TsDeclaration
     private readonly TsType _type;
 
     private TsTypeAlias(string name, TsType type, string? doc)
-        : base(name, "type", doc)
+        : base(name, "type", TsDeclarationSpace.Type, doc)
     {
         _type = type;
     }
@@ -20,6 +20,10 @@ internal sealed class TsTypeAlias : TsDeclaration
     internal static TsTypeAlias Create(string name, TsType type, string? doc = null) => new(name, type, doc);
 
     /// <inheritdoc />
-    private protected override void WriteBody(StringBuilder builder) =>
-        builder.Append("export type ").Append(Name).Append(" = ").Append(_type.Render()).Append(';');
+    private protected override void WriteBody(StringBuilder builder)
+    {
+        builder.Append("export type ").Append(Name).Append(" = ");
+        _type.Write(builder);
+        builder.Append(';');
+    }
 }
