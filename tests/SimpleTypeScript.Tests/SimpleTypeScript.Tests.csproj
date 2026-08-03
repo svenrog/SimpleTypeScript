@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../src/SimpleTypeScript/SimpleTypeScript.csproj" />
+    <ProjectReference Include="../../src/SimpleTypeScript.TypeGeneration/SimpleTypeScript.TypeGeneration.csproj" />
   </ItemGroup>
 
 </Project>

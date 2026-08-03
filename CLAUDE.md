@@ -16,6 +16,7 @@ SimpleTypeScript;` and reaches `TsModule`, `TsComment`, `TsType`, `TsValue`, `Ts
 | `SimpleTypeScript.Types` | The `TsType` nodes — named, array, generic, union, string literal. |
 | `SimpleTypeScript.Values` | The `TsValue` nodes — raw, string, array, object. |
 | `SimpleTypeScript.Syntax` | `TsSyntax`: escaping, identifiers, number form, indentation. |
+| `SimpleTypeScript.TypeGeneration` | **A second project and package**: the C#→TypeScript walk. Public, because a consumer configures it. |
 
 **Adding a construct is a class in the namespace for its grammar, plus a factory on the public base** — the
 node never becomes public, because the constructors are `private protected` and that is what keeps every
@@ -24,6 +25,11 @@ earns its own namespace under the root; a new instance of an existing kind does 
 
 The internals are reachable across namespaces without ceremony because `internal` is assembly-wide, and a
 file in `SimpleTypeScript.Types` sees the root namespace without a `using` — it is a parent of its own.
+
+**`TypeGeneration` is an assembly boundary, not just a namespace**, and the line is reflection: the emitter
+reflects over nothing and its csproj claims AOT compatibility for it, so the walk cannot live beside it
+without taking that claim away from every consumer. Anything that reads `Type`, `PropertyInfo` or an
+attribute belongs on that side; anything that decides how TypeScript is spelled belongs on this one.
 
 ## Not here yet
 

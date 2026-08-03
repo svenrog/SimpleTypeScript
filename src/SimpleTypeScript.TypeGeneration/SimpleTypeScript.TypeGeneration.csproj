@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+    <PackageId>SimpleTypeScript.TypeGeneration</PackageId>
+    <Description>Generate TypeScript declarations from C# types: walk a set of roots, follow what their members reach, and write an interface per type and a string-literal union per enum — reading the shape System.Text.Json actually serializes, not only the shape the C# declares.</Description>
+    <PackageTags>typescript;codegen;dto;reflection;system-text-json</PackageTags>
+    <IsAotCompatible>false</IsAotCompatible>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../SimpleTypeScript/SimpleTypeScript.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../LICENSE.txt" Pack="true" PackagePath="/" />
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+</Project>

@@ -82,10 +82,53 @@ them from, and every level of a grammar that is modelled has to be kept correct.
 its own syntax, which is why nothing needs parenthesising and no precedence is tracked; a composed type
 written as a name is refused by `TsType.Of` rather than half-supported.
 
+## Generating from C# types
+
+`SimpleTypeScript.TypeGeneration` is the companion package: give it roots, and it follows what their members
+reach — an interface per shape, a string union per enum, everything written through the emitter above.
+
+```csharp
+var module = new TsModule();
+
+new TypeWalker(new TypeWalkerOptions
+    {
+        Documentation = new XmlDocumentationSource(),
+        Mappings = new Dictionary<Type, TsType> { [typeof(Money)] = TsType.String },
+    })
+    .Add(typeof(Order), typeof(Customer))
+    .Declare(module);
+
+File.WriteAllText(path, module.Render(TsComment.Lines(["GENERATED — do not edit."])));
+```
+
+**It reads the shape that is serialized, not only the shape that is declared.** `[JsonIgnore]` drops a
+member, `[JsonPropertyName]` renames it, and everything else takes the naming policy — camel case by default,
+matching what a JSON API is usually configured with. A generator that reads the C# alone spells every member
+wrong the moment a policy is set, and nothing says so until a field is `undefined`.
+
+The rest of what it decides, and how to overrule it:
+
+| | |
+| --- | --- |
+| A nullable member | `T \| null`, for a nullable reference and a `Nullable<T>` alike |
+| An enum | a union of the strings the wire carries — `EnumNamingPolicy` if a converter renames them, or map it to `TsType.Number` if it is serialized as one |
+| A sequence | `T[]`; a dictionary is `Record<string, V>`, since a JSON key is a string whatever the C# key is |
+| A BCL type | `TypeMappings.Default` — dates, `Guid`, `Uri`, every numeric, `JsonElement` as `unknown` |
+| Anything else | refused rather than written as `any`, because a shape that checks nothing is not noticed |
+| Doc comments | none, unless an `IDocumentationSource` is given; `XmlDocumentationSource` reads the compiler's and flattens it to a sentence |
+
+A mapped type is a **leaf**: nothing behind it is reached, which is what makes mapping the fix for a
+framework type dragging its own graph into the output. Declarations are emitted in name order and members in
+declaration order, so the file is byte-stable across runs and machines.
+
+This half reflects, so it is a package of its own — the emitter reflects over nothing, and a consumer
+publishing NativeAOT keeps that by taking only the emitter.
+
 ## Installing
 
 ```
 dotnet add package SimpleTypeScript
+dotnet add package SimpleTypeScript.TypeGeneration   # only if you generate from C# types
 ```
 
 `net10.0`.

@@ -9,4 +9,5 @@
     <Project Path="tests/SimpleTypeScript.Tests/SimpleTypeScript.Tests.csproj" />
   </Folder>
   <Project Path="src/SimpleTypeScript/SimpleTypeScript.csproj" />
+  <Project Path="src/SimpleTypeScript.TypeGeneration/SimpleTypeScript.TypeGeneration.csproj" />
 </Solution>

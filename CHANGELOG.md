@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented here.
 
+## 0.3.0
+
+- **`SimpleTypeScript.TypeGeneration`**, a second package: `TypeWalker` follows a set of C# roots and
+  declares what their members reach — an interface per shape, a string union per enum. It reads what
+  `System.Text.Json` serializes rather than only what the C# declares (`[JsonIgnore]`, `[JsonPropertyName]`,
+  the naming policy), maps the BCL types a DTO is made of, and refuses a type it has no shape for rather than
+  writing `any`. Doc comments are opt-in through `IDocumentationSource`; `XmlDocumentationSource` reads the
+  compiler's XmlDoc and flattens its markup to a sentence.
+- Separate from the emitter because it reflects, and the emitter's claim is that it does not.
+
 ## 0.2.0
 
 Shapes, not only values — enough to generate DTOs, which is what a consumer was running a second generator
