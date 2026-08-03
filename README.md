@@ -29,9 +29,9 @@ File.WriteAllText(path, module.Render());
 
 /** One order, as the API returns it. */
 export interface Order {
-  readonly id: string;
-  readonly shippedAt: string | null;
-  readonly status: OrderStatus;
+  id: string;
+  shippedAt: string | null;
+  status: OrderStatus;
 }
 
 export type OrderStatus = "Open" | "Shipped";

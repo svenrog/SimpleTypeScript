@@ -39,9 +39,8 @@ public sealed class TsMember
     public TsType Type { get; }
 
     /// <summary>
-    /// Writes <c>readonly</c>, which is what a shape the consumer only ever receives should say. Off by
-    /// default: the emitter writes what it is told, and the opinion about what a received payload looks like
-    /// belongs to the layer that reads the C#.
+    /// Writes <c>readonly</c>. Off by default, and shallow when asked for, the way the language's own is:
+    /// it refuses an assignment to the member and permits every mutation of what the member holds.
     /// </summary>
     public bool IsReadOnly { get; init; }
 

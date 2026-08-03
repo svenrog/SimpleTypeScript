@@ -29,7 +29,7 @@ public sealed class TypeWalkerTests
 
         Assert.Contains("export interface Order {", rendered, StringComparison.Ordinal);
         Assert.Contains("export interface Line {", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly lines: Line[];", rendered, StringComparison.Ordinal);
+        Assert.Contains("lines: Line[];", rendered, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -41,8 +41,8 @@ public sealed class TypeWalkerTests
     {
         var rendered = Render(null, typeof(Order));
 
-        Assert.Contains("readonly orderNumber: string;", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly ref: string;", rendered, StringComparison.Ordinal);
+        Assert.Contains("orderNumber: string;", rendered, StringComparison.Ordinal);
+        Assert.Contains("ref: string;", rendered, StringComparison.Ordinal);
         Assert.DoesNotContain("internalNote", rendered, StringComparison.Ordinal);
     }
 
@@ -51,7 +51,7 @@ public sealed class TypeWalkerTests
     {
         var rendered = Render(new TypeWalkerOptions { MemberNamingPolicy = null }, typeof(Line));
 
-        Assert.Contains("readonly Quantity: number;", rendered, StringComparison.Ordinal);
+        Assert.Contains("Quantity: number;", rendered, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -63,9 +63,9 @@ public sealed class TypeWalkerTests
     {
         var rendered = Render(null, typeof(Order));
 
-        Assert.Contains("readonly note: string | null;", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly shippedAt: string | null;", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly total: number;", rendered, StringComparison.Ordinal);
+        Assert.Contains("note: string | null;", rendered, StringComparison.Ordinal);
+        Assert.Contains("shippedAt: string | null;", rendered, StringComparison.Ordinal);
+        Assert.Contains("total: number;", rendered, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -139,7 +139,7 @@ public sealed class TypeWalkerTests
             new TypeWalkerOptions { Mappings = new Dictionary<Type, TsType> { [typeof(Status)] = TsType.Number } },
             typeof(Order));
 
-        Assert.Contains("readonly status: number;", rendered, StringComparison.Ordinal);
+        Assert.Contains("status: number;", rendered, StringComparison.Ordinal);
         Assert.DoesNotContain("export type Status", rendered, StringComparison.Ordinal);
     }
 
@@ -148,7 +148,7 @@ public sealed class TypeWalkerTests
     {
         var rendered = Render(null, typeof(Basket));
 
-        Assert.Contains("readonly byRegion: Record<string, Line>;", rendered, StringComparison.Ordinal);
+        Assert.Contains("byRegion: Record<string, Line>;", rendered, StringComparison.Ordinal);
         Assert.Contains("export interface Line {", rendered, StringComparison.Ordinal);
     }
 
@@ -158,8 +158,8 @@ public sealed class TypeWalkerTests
     {
         var rendered = Render(null, typeof(Node));
 
-        Assert.Contains("readonly parent: Node | null;", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly children: Node[];", rendered, StringComparison.Ordinal);
+        Assert.Contains("parent: Node | null;", rendered, StringComparison.Ordinal);
+        Assert.Contains("children: Node[];", rendered, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -208,9 +208,9 @@ public sealed class TypeWalkerTests
         var rendered = Render(null, typeof(Conditional));
 
         Assert.DoesNotContain("always", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly whenNull?: string;", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly whenDefault?: number;", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly never: string;", rendered, StringComparison.Ordinal);
+        Assert.Contains("whenNull?: string;", rendered, StringComparison.Ordinal);
+        Assert.Contains("whenDefault?: number;", rendered, StringComparison.Ordinal);
+        Assert.Contains("never: string;", rendered, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -223,9 +223,9 @@ public sealed class TypeWalkerTests
     {
         var rendered = Render(null, typeof(Omissions));
 
-        Assert.Contains("readonly note: string | null;", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly score: number | null;", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly count: number;", rendered, StringComparison.Ordinal);
+        Assert.Contains("note: string | null;", rendered, StringComparison.Ordinal);
+        Assert.Contains("score: number | null;", rendered, StringComparison.Ordinal);
+        Assert.Contains("count: number;", rendered, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -240,11 +240,11 @@ public sealed class TypeWalkerTests
             new TypeWalkerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull },
             typeof(Omissions));
 
-        Assert.Contains("readonly note?: string;", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly score?: number;", rendered, StringComparison.Ordinal);
+        Assert.Contains("note?: string;", rendered, StringComparison.Ordinal);
+        Assert.Contains("score?: number;", rendered, StringComparison.Ordinal);
 
         // Not nullable, so this condition never leaves it out.
-        Assert.Contains("readonly count: number;", rendered, StringComparison.Ordinal);
+        Assert.Contains("count: number;", rendered, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -258,9 +258,9 @@ public sealed class TypeWalkerTests
             new TypeWalkerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault },
             typeof(Omissions));
 
-        Assert.Contains("readonly note?: string;", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly count?: number;", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly reference: string;", rendered, StringComparison.Ordinal);
+        Assert.Contains("note?: string;", rendered, StringComparison.Ordinal);
+        Assert.Contains("count?: number;", rendered, StringComparison.Ordinal);
+        Assert.Contains("reference: string;", rendered, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -275,9 +275,9 @@ public sealed class TypeWalkerTests
             new TypeWalkerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault },
             typeof(Omissions));
 
-        Assert.Contains("readonly annotated: string | null;", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly demanded: string;", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly keyword: string;", rendered, StringComparison.Ordinal);
+        Assert.Contains("annotated: string | null;", rendered, StringComparison.Ordinal);
+        Assert.Contains("demanded: string;", rendered, StringComparison.Ordinal);
+        Assert.Contains("keyword: string;", rendered, StringComparison.Ordinal);
     }
 
 #if NET10_0_OR_GREATER
@@ -292,7 +292,7 @@ public sealed class TypeWalkerTests
         var rendered = Render(null, typeof(Directional));
 
         Assert.DoesNotContain("neverWritten", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly writtenOnly: string;", rendered, StringComparison.Ordinal);
+        Assert.Contains("writtenOnly: string;", rendered, StringComparison.Ordinal);
     }
 #endif
 
@@ -328,8 +328,8 @@ public sealed class TypeWalkerTests
     {
         var rendered = Render(null, typeof(Tallies));
 
-        Assert.Contains("readonly scores: (number | null)[];", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly byRegion: Record<string, number | null>;", rendered, StringComparison.Ordinal);
+        Assert.Contains("scores: (number | null)[];", rendered, StringComparison.Ordinal);
+        Assert.Contains("byRegion: Record<string, number | null>;", rendered, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -342,9 +342,9 @@ public sealed class TypeWalkerTests
     {
         var rendered = Render(null, typeof(Notes));
 
-        Assert.Contains("readonly loose: (string | null)[];", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly listed: (string | null)[];", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly keyed: Record<string, string | null>;", rendered, StringComparison.Ordinal);
+        Assert.Contains("loose: (string | null)[];", rendered, StringComparison.Ordinal);
+        Assert.Contains("listed: (string | null)[];", rendered, StringComparison.Ordinal);
+        Assert.Contains("keyed: Record<string, string | null>;", rendered, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -356,9 +356,9 @@ public sealed class TypeWalkerTests
     {
         var rendered = Render(null, typeof(Notes));
 
-        Assert.Contains("readonly firm: string[];", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly absentList: string[] | null;", rendered, StringComparison.Ordinal);
-        Assert.Contains("readonly nested: (string | null)[][];", rendered, StringComparison.Ordinal);
+        Assert.Contains("firm: string[];", rendered, StringComparison.Ordinal);
+        Assert.Contains("absentList: string[] | null;", rendered, StringComparison.Ordinal);
+        Assert.Contains("nested: (string | null)[][];", rendered, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -374,7 +374,7 @@ public sealed class TypeWalkerTests
         Assert.Contains(nameof(TypeWalkerOptions.Mappings), refusal.Message, StringComparison.Ordinal);
 
         Assert.Contains(
-            "readonly payload: unknown | null;",
+            "payload: unknown | null;",
             Render(null, typeof(Envelope)),
             StringComparison.Ordinal);
     }
@@ -389,13 +389,23 @@ public sealed class TypeWalkerTests
             < rendered.IndexOf("interface Order", StringComparison.Ordinal));
     }
 
+    /// <summary>
+    /// A generated type is mutable unless asked otherwise, which is what one looks like everywhere else. The
+    /// <c>readonly</c> is there for a consumer that wants it, and stays shallow when it arrives — the member
+    /// cannot be assigned and everything it holds still can be.
+    /// </summary>
     [Fact]
-    public void Leaves_out_the_readonly_a_consumer_that_builds_the_payload_does_not_want()
+    public void Writes_the_readonly_only_where_it_is_asked_for()
     {
-        var rendered = Render(new TypeWalkerOptions { ReadOnlyMembers = false }, typeof(Line));
+        Assert.DoesNotContain("readonly", Render(null, typeof(Line)), StringComparison.Ordinal);
 
-        Assert.Contains("  quantity: number;", rendered, StringComparison.Ordinal);
-        Assert.DoesNotContain("readonly", rendered, StringComparison.Ordinal);
+        var rendered = Render(new TypeWalkerOptions { ReadOnlyMembers = true }, typeof(Order));
+
+        Assert.Contains("  readonly quantity: number;", Render(
+            new TypeWalkerOptions { ReadOnlyMembers = true }, typeof(Line)), StringComparison.Ordinal);
+
+        // Shallow: the member is readonly and the array it holds is not.
+        Assert.Contains("readonly lines: Line[];", rendered, StringComparison.Ordinal);
     }
 
     [Fact]

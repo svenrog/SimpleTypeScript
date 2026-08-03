@@ -51,11 +51,11 @@ it writes this:
 /** One order, as the API returns it. */
 export interface Order {
   /** Assigned when the order is placed. */
-  readonly id: string;
-  readonly ref: string;
-  readonly shippedAt: string | null;
-  readonly status: OrderStatus;
-  readonly lines: Line[];
+  id: string;
+  ref: string;
+  shippedAt: string | null;
+  status: OrderStatus;
+  lines: Line[];
 }
 
 export type OrderStatus = "Open" | "Shipped";
@@ -83,7 +83,7 @@ reads the C# alone spells every member wrong the moment a policy is set, and not
 | Any other platform type | refused: nothing under `System.` or `Microsoft.` is a payload, so writing one would describe an implementation | `Mappings` |
 | Two types of one name | refused: the output has no namespaces to tell them apart with | `Name` |
 | Anything else | refused rather than written as `any` | `Mappings` |
-| A member's mutability | `readonly`, since a consumer usually receives these | `ReadOnlyMembers` |
+| A member's mutability | mutable, as a generated type is everywhere else | `ReadOnlyMembers`, which is shallow — see below |
 | A declaration's name | the C# type name | `Name` |
 | Doc comments | none | `Documentation`; `XmlDocumentationSource` reads the compiler's XmlDoc and flattens its markup to a sentence |
 
@@ -104,13 +104,28 @@ var options = new TypeWalkerOptions { DefaultIgnoreCondition = JsonIgnoreConditi
 
 | `string? Note` on a producer that… | |
 | --- | --- |
-| writes every key (the serializer's default) | `readonly note: string \| null;` |
-| omits nulls (`WhenWritingNull`) | `readonly note?: string;` |
-| omits defaults (`WhenWritingDefault`) | `readonly note?: string;`, and every value-type member too |
-| …but marks it `required` / `[JsonRequired]` / `[Required]` | `readonly note: string \| null;` — present, and still nullable |
+| writes every key (the serializer's default) | `note: string \| null;` |
+| omits nulls (`WhenWritingNull`) | `note?: string;` |
+| omits defaults (`WhenWritingDefault`) | `note?: string;`, and every value-type member too |
+| …but marks it `required` / `[JsonRequired]` / `[Required]` | `note: string \| null;` — present, and still nullable |
 
 There is no `| undefined`: JSON has no such literal, so a parsed payload cannot hold one. `undefined` only
 ever arrives as a missing key, which is what `?` already says.
+
+### `readonly` is opt-in, and shallow
+
+`ReadOnlyMembers` writes `readonly` on every member. It is off by default — which is what a generated type
+looks like in the generators that offer this at all, where it is `--immutable` or `immutableTypes` and never
+the default. Worth knowing what you get before asking for it:
+
+```ts
+readonly lines: Line[];   // order.lines = []      refused
+                          // order.lines.push(x)   allowed
+```
+
+TypeScript's `readonly` stops at the member. Meaning it would need the elements to be readonly too —
+`readonly lines: readonly Line[]` — which nothing here can spell yet. So this is the shallow half: useful
+where that is what you wanted, misleading if you expected the payload to be frozen.
 
 ## Enums
 
