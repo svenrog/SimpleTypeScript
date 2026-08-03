@@ -39,11 +39,11 @@ public sealed class TsMember
     public TsType Type { get; }
 
     /// <summary>
-    /// Writes <c>readonly</c>, which is what a shape the consumer only ever receives should say. Off by
-    /// default: the emitter writes what it is told, and the opinion about what a received payload looks like
-    /// belongs to the layer that reads the C#.
+    /// Writes <c>readonly</c>, which is what a shape the consumer only ever receives should say — so it is
+    /// on by default, as it is for a walk. A payload the consumer also builds is the smaller half of the
+    /// work, and says so.
     /// </summary>
-    public bool IsReadOnly { get; init; }
+    public bool IsReadOnly { get; init; } = true;
 
     /// <summary>
     /// Writes <c>?</c>, for a member the producer omits rather than sends empty — which is a different thing

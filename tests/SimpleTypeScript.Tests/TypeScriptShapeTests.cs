@@ -30,7 +30,7 @@ public sealed class TypeScriptShapeTests
             ]));
 
         Assert.Contains(
-            "export interface ScanSummary {\n  id: string;\n  findings: Finding[];\n}",
+            "export interface ScanSummary {\n  readonly id: string;\n  readonly findings: Finding[];\n}",
             rendered,
             StringComparison.Ordinal);
     }
@@ -50,22 +50,26 @@ public sealed class TypeScriptShapeTests
                 new TsMember("class", TsType.String),
             ]));
 
-        Assert.Contains("  contentType: string;", rendered, StringComparison.Ordinal);
-        Assert.Contains("  \"content-type\": string;", rendered, StringComparison.Ordinal);
+        Assert.Contains("  readonly contentType: string;", rendered, StringComparison.Ordinal);
+        Assert.Contains("  readonly \"content-type\": string;", rendered, StringComparison.Ordinal);
 
         // A reserved word is a legal property name in modern ECMAScript, and IsIdentifier is conservative
         // about it. Over-quoting is the harmless direction; under-quoting is a syntax error.
-        Assert.Contains("  \"class\": string;", rendered, StringComparison.Ordinal);
+        Assert.Contains("  readonly \"class\": string;", rendered, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// <c>readonly</c> is what a shape the consumer only receives says, so it is what a member says unless
+    /// told otherwise — and a payload the consumer also builds turns it off per member.
+    /// </summary>
     [Fact]
     public void Writes_readonly_and_a_doc_comment_on_the_member_they_belong_to()
     {
         var rendered = Render(module => module.Interface(
             "Scan",
             [
-                new TsMember("id", TsType.String) { IsReadOnly = true, Doc = "Assigned when the scan is queued." },
-                new TsMember("domain", TsType.String),
+                new TsMember("id", TsType.String) { Doc = "Assigned when the scan is queued." },
+                new TsMember("domain", TsType.String) { IsReadOnly = false },
             ],
             doc: "One scan, as the API returns it."));
 
@@ -159,7 +163,7 @@ public sealed class TypeScriptShapeTests
 
         Assert.DoesNotContain('\r', rendered);
         Assert.Contains(
-            "export type Status = \"a\" | \"b\";\n\nexport interface Scan {\n  status: Status;\n}\n",
+            "export type Status = \"a\" | \"b\";\n\nexport interface Scan {\n  readonly status: Status;\n}\n",
             rendered,
             StringComparison.Ordinal);
     }

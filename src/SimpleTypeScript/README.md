@@ -40,7 +40,7 @@ var module = new TsModule()
     .Interface(
         "ScanSummary",
         [
-            new TsMember("id", TsType.String) { IsReadOnly = true },
+            new TsMember("id", TsType.String),
             new TsMember("status", TsType.Of("ScanStatus")),
             new TsMember("finishedAt", TsType.Union([TsType.String, TsType.Null])) { Doc = "Null while running." },
         ],
@@ -53,11 +53,14 @@ export type ScanStatus = "Queued" | "Running";
 /** One scan, as the API returns it. */
 export interface ScanSummary {
   readonly id: string;
-  status: ScanStatus;
+  readonly status: ScanStatus;
   /** Null while running. */
-  finishedAt: string | null;
+  readonly finishedAt: string | null;
 }
 ```
+
+Members are `readonly` unless a member says otherwise — a generated shape usually describes what a consumer
+receives, and one it also builds says so with `IsReadOnly = false`.
 
 Generating those declarations **from C# types** is
 [`SimpleTypeScript.TypeGeneration`](https://www.nuget.org/packages/SimpleTypeScript.TypeGeneration), a

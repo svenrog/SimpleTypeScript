@@ -9,10 +9,10 @@ var module = new TsModule()
     .Interface(
         "Order",
         [
-            new TsMember("id", TsType.String) { IsReadOnly = true, Doc = "The identity." },
-            new TsMember("note", TsType.String) { IsReadOnly = true, IsOptional = true },
+            new TsMember("id", TsType.String) { Doc = "The identity." },
+            new TsMember("note", TsType.String) { IsOptional = true },
             new TsMember("status", TsType.ValuesOf("Status")),
-            new TsMember("totals", TsType.Record(TsType.String, TsType.Number)),
+            new TsMember("totals", TsType.Record(TsType.String, TsType.Number)) { IsReadOnly = false },
             new TsMember("tags", TsType.ArrayOf(TsType.Union([TsType.String, TsType.Null]))),
         ],
         doc: "One order, as the API returns it.");

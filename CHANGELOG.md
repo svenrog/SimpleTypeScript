@@ -13,9 +13,12 @@ accreting parameters — a new option meant another argument and another break, 
 API cannot have:
 
 - **`TsMember`** takes the name and type it *is*; how it is written is set on it.
-  `new TsMember("id", TsType.String) { IsReadOnly = true, Doc = "The identity." }`. Two trailing booleans
-  read as a bare `true` at a call site that said which was which nowhere. `Name` and `Type` are public with
-  it. The next modifier is a property rather than a signature.
+  `new TsMember("id", TsType.String) { Doc = "The identity." }`. Two trailing booleans read as a bare `true`
+  at a call site that said which was which nowhere. `Name` and `Type` are public with it. The next modifier
+  is a property rather than a signature.
+- **A member is `readonly` unless it says otherwise**, which is what a walk already did and what the emitter
+  now does too. The two halves of one library disagreeing about the default for one concept was not a
+  layering rule, it was a default nobody had chosen; a payload the consumer builds says `IsReadOnly = false`.
 - **`TsModule.Const`** loses `asConst`, and `TsValue.AsConst(value)` carries the assertion instead — which
   is where the language puts it, on the expression rather than the declaration. `type` and `asConst` were
   mutually exclusive and refused each other at run time; two parameters that cannot both be set is a
