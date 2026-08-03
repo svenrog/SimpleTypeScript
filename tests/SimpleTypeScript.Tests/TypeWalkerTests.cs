@@ -81,8 +81,54 @@ public sealed class TypeWalkerTests
     }
 
     /// <summary>
+    /// The underlying values, for a producer that serializes an enum as a number. The member names cannot
+    /// survive, because nothing on the wire carries them — and an alias is a second name for one value, so a
+    /// union repeating it would say the same thing twice.
+    /// </summary>
+    [Fact]
+    public void Writes_an_enum_as_its_numbers_where_that_is_what_the_wire_carries()
+    {
+        var rendered = Render(new TypeWalkerOptions { EnumStyle = EnumStyle.NumberUnion }, typeof(Order));
+
+        Assert.Contains("export type Status = 0 | 1;", rendered, StringComparison.Ordinal);
+        Assert.Contains("export type Priority = 0 | 5;", rendered, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// A union does not exist at run time, so a consumer that has to iterate the set, index it or render a
+    /// dropdown from it gets an object beside the type — and the type is read off the object rather than
+    /// restated, so the two cannot drift.
+    /// </summary>
+    [Fact]
+    public void Writes_an_enum_as_a_const_object_and_the_type_read_off_it()
+    {
+        var rendered = Render(new TypeWalkerOptions { EnumStyle = EnumStyle.ConstObject }, typeof(Order));
+
+        Assert.Contains(
+            "export const Status = {\n  \"Open\": \"Open\",\n  \"Shipped\": \"Shipped\",\n} as const;\n\n"
+            + "export type Status = typeof Status[keyof typeof Status];",
+            rendered,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// The key is what a consumer writes, the value is what the wire carries, and a naming policy moves only
+    /// the second — so <c>Status.Open</c> keeps reading as the C# does while comparing equal to what arrives.
+    /// </summary>
+    [Fact]
+    public void Keeps_the_member_name_a_consumer_spells_while_the_value_follows_the_policy()
+    {
+        var rendered = Render(
+            new TypeWalkerOptions { EnumStyle = EnumStyle.ConstObject, EnumNamingPolicy = JsonNamingPolicy.CamelCase },
+            typeof(Order));
+
+        Assert.Contains("\"Open\": \"open\",", rendered, StringComparison.Ordinal);
+        Assert.Contains("\"Shipped\": \"shipped\",", rendered, StringComparison.Ordinal);
+    }
+
+    /// <summary>
     /// A mapping is a leaf, which is what makes it the fix for a type carried as something other than its
-    /// shape — an enum the producer writes as a number, here — rather than a workaround for one.
+    /// shape — an enum a producer writes in a form nothing here models — rather than a workaround for one.
     /// </summary>
     [Fact]
     public void Stops_at_a_mapped_type_and_declares_nothing_behind_it()
@@ -159,6 +205,14 @@ public sealed class TypeWalkerTests
         Shipped,
     }
 
+    /// <summary>Values of its own, and an alias sharing one.</summary>
+    private enum Priority
+    {
+        Normal = 0,
+        Standard = 0,
+        Urgent = 5,
+    }
+
     private sealed class Order
     {
         public string OrderNumber { get; init; } = string.Empty;
@@ -176,6 +230,8 @@ public sealed class TypeWalkerTests
         public decimal Total { get; init; }
 
         public Status Status { get; init; }
+
+        public Priority Priority { get; init; }
 
         public IReadOnlyList<Line> Lines { get; init; } = [];
     }

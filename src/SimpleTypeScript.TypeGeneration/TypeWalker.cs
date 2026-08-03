@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Globalization;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -111,16 +112,44 @@ public sealed class TypeWalker
         var reference = TsType.Of(name);
         _references[type] = reference;
 
-        var members = Enum.GetNames(type)
-            .Select(member => _options.EnumNamingPolicy?.ConvertName(member) ?? member)
-            .Select(TsType.StringLiteral)
-            .ToArray();
-
         var doc = _options.Documentation.For(type);
-        _declarations[name] = module => module.TypeAlias(name, TsType.Union(members), doc);
+        var names = Names(type).ToArray();
+
+        // One entry writing two declarations, for the style that needs both: they stay adjacent and sort
+        // under one name, which is what keeps a value and the type read off it from drifting apart.
+        _declarations[name] = _options.EnumStyle switch
+        {
+            EnumStyle.NumberUnion => module => module.TypeAlias(name, TsType.Union(Numbers(type)), doc),
+            EnumStyle.ConstObject => module => module
+                .Const(name, TsValue.Object(names), asConst: true, doc: doc)
+                .TypeAlias(name, TsType.ValuesOf(name)),
+            _ => module => module.TypeAlias(
+                name,
+                TsType.Union(names.Select(entry => TsType.StringLiteral(entry.Value))),
+                doc),
+        };
 
         return reference;
     }
+
+    /// <summary>
+    /// Each member as the name a consumer spells it by and the string the wire carries it as. The two differ
+    /// wherever a naming policy is in play, and only the second is comparable against a received value.
+    /// </summary>
+    private IEnumerable<KeyValuePair<string, string>> Names(Type type) => Enum
+        .GetNames(type)
+        .Select(member => KeyValuePair.Create(member, _options.EnumNamingPolicy?.ConvertName(member) ?? member));
+
+    /// <summary>
+    /// The underlying values, distinctly. Two members may share one — an alias is a second name for a value,
+    /// not a second value — and a union repeating it says the same thing twice.
+    /// </summary>
+    private static IEnumerable<TsType> Numbers(Type type) => Enum
+        .GetValues(type)
+        .Cast<object>()
+        .Select(value => Convert.ToDouble(value, CultureInfo.InvariantCulture))
+        .Distinct()
+        .Select(TsType.NumberLiteral);
 
     private TsType DeclareInterface(Type type)
     {

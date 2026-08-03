@@ -56,6 +56,19 @@ public abstract class TsType
     /// <summary>One string, as a type — what a member of a closed set is, once it is on a JSON wire.</summary>
     public static TsType StringLiteral(string value) => new TsStringLiteralType(value);
 
+    /// <summary>One number, as a type, for a set the wire carries by value rather than by name.</summary>
+    public static TsType NumberLiteral(double value) => new TsNumberLiteralType(value);
+
+    /// <summary>
+    /// <c>typeof name[keyof typeof name]</c> — whatever the object bound to <paramref name="name"/> holds.
+    /// Names a declaration rather than restating it, so a <c>const</c> object and a type of the same name
+    /// cannot drift from one another.
+    /// </summary>
+    public static TsType ValuesOf(string name) =>
+        TsSyntax.IsIdentifier(name)
+            ? new TsValuesOfType(name)
+            : throw new TypeScriptException($"'{name}' is not a binding this can read the values of");
+
     /// <summary>
     /// <c>a | b | c</c>, in the order given. A union of one is that type: a set with a single member is a
     /// legitimate thing to generate, and writing it as a union would only add punctuation.

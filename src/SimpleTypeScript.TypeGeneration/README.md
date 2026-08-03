@@ -68,7 +68,7 @@ wrong the moment a policy is set, and nothing says so until a field is `undefine
 | --- | --- | --- |
 | A member name | camel case | `MemberNamingPolicy`, or `null` for the C# name |
 | A nullable member | `T \| null`, for a nullable reference and a `Nullable<T>` alike | — |
-| An enum | a union of the member names, which is what `JsonStringEnumConverter` writes | `EnumNamingPolicy` where a converter renames them; map it to `TsType.Number` where it is serialized as one |
+| An enum | a union of the member names, which is what `JsonStringEnumConverter` writes | `EnumStyle` (below) and `EnumNamingPolicy` where a converter renames the members |
 | A sequence | `T[]`; a dictionary is `Record<string, V>`, since a JSON key is a string whatever the C# key is | — |
 | A BCL type | `TypeMappings.Default`: dates, `Guid`, `Uri`, every numeric, `byte[]` as its base64 string, `JsonElement` as `unknown` | `Mappings`, merged over the defaults |
 | Anything else | refused rather than written as `any` | `Mappings` |
@@ -80,6 +80,39 @@ A mapped type is a **leaf**: nothing behind it is reached, which makes mapping t
 dragging its own graph into the output, and the way to say a type is carried as something other than its
 shape. Declarations are emitted in name order and members in declaration order, so the file is byte-stable
 across runs and machines.
+
+## Enums
+
+`EnumStyle` picks between three. The first two are decided by what the producer serializes; the third is a
+preference about what a consumer wants beside the type.
+
+```csharp
+var options = new TypeWalkerOptions { EnumStyle = EnumStyle.ConstObject };
+```
+
+```ts
+// StringUnion (default) — JsonStringEnumConverter
+export type Status = "Open" | "Shipped";
+
+// NumberUnion — an enum serialized by value; the member names cannot survive
+export type Status = 0 | 1;
+
+// ConstObject — a value to iterate, and the type read off it
+export const Status = {
+  "Open": "Open",
+  "Shipped": "Shipped",
+} as const;
+
+export type Status = typeof Status[keyof typeof Status];
+```
+
+The const object's **key is what a consumer writes and its value is what the wire carries**, so
+`EnumNamingPolicy` moves only the second: `Status.Open === "open"` still reads as the C# does. `Object.values(Status)`
+is what a union alone cannot give you — a union has no run-time existence, so nothing can enumerate it.
+
+**`export enum` is deliberately absent.** It is the one form with runtime semantics of its own, which makes it
+the form a type-stripping loader — `erasableSyntaxOnly`, Node's own — refuses to run. An enum that should not
+be generated at all is a mapping like any other type.
 
 ## Generators with more than one file
 

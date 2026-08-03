@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented here.
 
+## 0.5.0
+
+- **`EnumStyle`**: a C# enum is written as a string union (the default, unchanged), as a union of its
+  underlying numbers, or as a `const` object with the type read off it —
+  `typeof Status[keyof typeof Status]`. The last is what a consumer needs to iterate or index the set, which a
+  union cannot do because it does not exist at run time; its keys stay the C# member names while its values
+  follow `EnumNamingPolicy`, so it reads like the C# and compares equal to the wire. `export enum` is
+  deliberately not offered — it is the one form a type-stripping loader refuses to run.
+- `TsType.NumberLiteral` and `TsType.ValuesOf` in the emitter, which is all the above needed.
+- `TsComment.Empty()`, so a module opening with no banner says so rather than passing no lines.
+- `TsModule.Render()` takes no header at all: omitting one writes the plainest do-not-edit notice, since
+  anything the emitter builds is generated. A banner is followed by one blank line, and no banner by none.
+
 ## 0.4.0
 
 The rest of what a generator was writing for itself, in `SimpleTypeScript.TypeGeneration.Modules`:

@@ -16,15 +16,23 @@ public sealed class TypeWalkerOptions
     public JsonNamingPolicy? MemberNamingPolicy { get; init; } = JsonNamingPolicy.CamelCase;
 
     /// <summary>
-    /// How an enum member reaches the wire, for the string union it becomes. <c>null</c> — the default — is
-    /// the member name as written, which is what <c>JsonStringEnumConverter</c> does unless it is handed a
-    /// policy of its own.
-    /// <para>
-    /// An enum the producer serializes as a <em>number</em> is not this: map it to <see cref="TsType.Number"/>
-    /// in <see cref="Mappings"/>, and the walk stops at it like any other leaf.
-    /// </para>
+    /// How an enum member reaches the wire, where <see cref="EnumStyle"/> writes its name. <c>null</c> — the
+    /// default — is the member name as written, which is what <c>JsonStringEnumConverter</c> does unless it
+    /// is handed a policy of its own.
     /// </summary>
     public JsonNamingPolicy? EnumNamingPolicy { get; init; }
+
+    /// <summary>
+    /// What an enum is written as. The default is the union of the strings the wire carries; a producer that
+    /// serializes numbers wants <see cref="TypeGeneration.EnumStyle.NumberUnion"/>, and a consumer that wants
+    /// the set at run time as well as at compile time wants
+    /// <see cref="TypeGeneration.EnumStyle.ConstObject"/>.
+    /// <para>
+    /// An enum that should not be generated at all is a mapping like any other type: name it in
+    /// <see cref="Mappings"/>, and the walk stops there.
+    /// </para>
+    /// </summary>
+    public EnumStyle EnumStyle { get; init; } = EnumStyle.StringUnion;
 
     /// <summary>
     /// Whether members are written <c>readonly</c>. On by default: a generated shape usually describes what
