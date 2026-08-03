@@ -241,12 +241,12 @@ public sealed class TypeWalker
                 shape = TsType.Union([shape, TsType.Null]);
             }
 
-            members.Add(new TsMember(
-                Name(property),
-                shape,
-                _options.Documentation.For(property),
-                _options.ReadOnlyMembers,
-                omitted));
+            members.Add(new TsMember(Name(property), shape)
+            {
+                Doc = _options.Documentation.For(property),
+                IsReadOnly = _options.ReadOnlyMembers,
+                IsOptional = omitted,
+            });
         }
 
         return reference;

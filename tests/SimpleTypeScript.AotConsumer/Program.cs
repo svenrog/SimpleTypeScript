@@ -9,8 +9,8 @@ var module = new TsModule()
     .Interface(
         "Order",
         [
-            new TsMember("id", TsType.String, doc: "The identity.", isReadOnly: true),
-            new TsMember("note", TsType.String, isReadOnly: true, isOptional: true),
+            new TsMember("id", TsType.String) { IsReadOnly = true, Doc = "The identity." },
+            new TsMember("note", TsType.String) { IsReadOnly = true, IsOptional = true },
             new TsMember("status", TsType.ValuesOf("Status")),
             new TsMember("totals", TsType.Record(TsType.String, TsType.Number)),
             new TsMember("tags", TsType.ArrayOf(TsType.Union([TsType.String, TsType.Null]))),

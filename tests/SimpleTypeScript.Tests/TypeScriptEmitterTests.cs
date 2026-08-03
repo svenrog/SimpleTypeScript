@@ -197,7 +197,7 @@ public sealed class TypeScriptEmitterTests
     public void Writes_an_optional_member_as_one()
     {
         var rendered = new TsModule()
-            .Interface("Shape", [new TsMember("note", TsType.String, isReadOnly: true, isOptional: true)])
+            .Interface("Shape", [new TsMember("note", TsType.String) { IsReadOnly = true, IsOptional = true }])
             .Render(TsComment.Empty());
 
         Assert.Contains("  readonly note?: string;\n", rendered, StringComparison.Ordinal);
